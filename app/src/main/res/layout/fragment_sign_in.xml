@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Fragments.Authentication.SignIn">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
+        android:paddingHorizontal="25dp"
+        android:background="@color/back"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="match_parent">
+
+            <!--Top title part-->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorAccent"
+                    android:layout_centerVertical="true"
+                    android:layout_height="wrap_content"
+                    android:text="Log In" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/intro"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="5dp"
+                android:textSize="15sp"
+                android:layout_height="wrap_content"
+                android:text="Enter your email and password" />
+
+            <EditText
+                android:id="@+id/emailEditText"
+                android:layout_marginTop="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:textColorHint="@color/hint_color"
+                android:paddingBottom="15dp"
+                android:ems="10"
+                android:inputType="textEmailAddress"
+                android:hint="Email" />
+
+            <EditText
+                android:id="@+id/PasswordEditText"
+                android:layout_marginTop="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dp"
+                android:textSize="16sp"
+                android:textColorHint="@color/hint_color"
+                android:paddingRight="20dp"
+                android:paddingBottom="15dp"
+                android:ems="10"
+                android:inputType="textPassword"
+                android:hint="Password" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_marginTop="30dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/sign_up_instead"
+                    android:layout_width="wrap_content"
+                    android:textSize="17sp"
+                    android:layout_centerVertical="true"
+                    android:textStyle="bold"
+                    android:layout_height="wrap_content"
+                    android:text="Sign up instead" />
+
+                <RelativeLayout
+                    android:id="@+id/begin_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:paddingBottom="5dp"
+                    android:paddingTop="5dp"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:textSize="17sp"
+                            android:layout_gravity="center_vertical"
+                            android:textColor="@color/colorPrimary"
+                            android:layout_height="wrap_content"
+                            android:text="Log in" />
+
+
+                        <ImageView
+                            android:layout_width="21dp"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginStart="5dp"
+                            android:translationY="1dp"
+                            android:src="@drawable/next_arrow_dark"
+                            android:layout_height="18dp"/>
+
+                    </LinearLayout>
+
+                </RelativeLayout>
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</FrameLayout>
