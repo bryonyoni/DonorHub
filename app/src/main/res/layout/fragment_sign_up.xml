@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Fragments.Authentication.SignUp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
+        android:background="@color/back"
+        android:paddingHorizontal="25dp"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="match_parent">
+
+            <!--Top title part-->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorAccent"
+                    android:layout_centerVertical="true"
+                    android:layout_height="wrap_content"
+                    android:text="Sign Up" />
+
+                <RelativeLayout
+                    android:id="@+id/next_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:paddingBottom="5dp"
+                    android:paddingTop="5dp"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:textSize="18sp"
+                            android:textColor="@color/colorPrimary"
+                            android:layout_gravity="center_vertical"
+                            android:layout_height="wrap_content"
+                            android:text="Next" />
+
+
+                        <ImageView
+                            android:layout_width="23dp"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginStart="5dp"
+                            android:translationY="1dp"
+                            android:src="@drawable/next_arrow_dark"
+                            android:layout_height="20dp"/>
+
+                    </LinearLayout>
+
+                </RelativeLayout>
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/intro"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="5dp"
+                android:textSize="15sp"
+                android:layout_height="wrap_content"
+                android:text="Fill in the details" />
+
+            <EditText
+                android:id="@+id/editText"
+                android:layout_marginTop="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:paddingBottom="15dp"
+                android:textColorHint="@color/hint_color"
+                android:textSize="14sp"
+                android:ems="10"
+                android:inputType="textPersonName|textCapSentences"
+                android:hint="Name" />
+
+
+
+            <TextView
+                android:id="@+id/log_in_instead"
+                android:layout_width="wrap_content"
+                android:textSize="17sp"
+                android:layout_marginTop="35dp"
+                android:textStyle="bold"
+                android:layout_height="wrap_content"
+                android:text="Log in instead" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</FrameLayout>

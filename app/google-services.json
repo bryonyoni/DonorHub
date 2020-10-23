@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "125057396220",
+    "firebase_url": "https://donorhub-76de8.firebaseio.com",
+    "project_id": "donorhub-76de8",
+    "storage_bucket": "donorhub-76de8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:125057396220:android:69d014edcb5bb7dcfe5679",
+        "android_client_info": {
+          "package_name": "com.bry.donorhub"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "125057396220-hve4bjclmq0lksfjfjuisltvribcn1ag.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDvb-IgyVwFFq5I8Bk4ib7FprICKOnucjw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "125057396220-hve4bjclmq0lksfjfjuisltvribcn1ag.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

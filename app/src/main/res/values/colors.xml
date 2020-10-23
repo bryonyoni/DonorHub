@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="colorPrimary">#393E46</color>
+    <color name="colorPrimaryDark">#272A30</color>
+    <color name="colorPrimaryLight">#C6C8CC</color>
+    <color name="colorAccent">#393E46</color>
+    <color name="colorAirwork">#0064A9</color>
+
+    <color name="back">#F1F1F1</color>
+    <color name="back2">#FFFFFF</color>
+    <color name="color_card">#393E46</color>
+
+    <color name="tag_back">#393E46</color>
+    <color name="hint_color">#808893</color>
+
+    <color name="date_color">#808893</color>
+    <color name="date_color_disable">#D5D5D5</color>
+
+    <color name="range_color">#C6C8CC</color>
+    <color name="selected_date_circle_color">#393E46</color>
+
+    <color name="red">#C60000</color>
+    <color name="orange">#FF5733</color>
+    <color name="yellow">#FFD00C</color>
+    <color name="green">#409528</color>
+    <color name="blue">#0064a9</color>
+    <color name="indigo">#4c00a9</color>
+    <color name="grey">#E9E9E9</color>
+
+    <color name="calendar_disable">#B8B8B8</color>
+    <color name="calendar_dates">#393E46</color>
+</resources>
