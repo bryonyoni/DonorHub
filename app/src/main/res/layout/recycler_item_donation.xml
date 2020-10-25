@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:paddingHorizontal="10dp"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/donation_desc"
+                android:layout_width="wrap_content"
+                android:text="3 red sweaters"
+                android:textSize="17sp"
+                android:textColor="@color/colorAccent"
+                android:layout_height="wrap_content"/>
+
+            <RelativeLayout
+                android:id="@+id/view_donation_relative"
+                android:layout_width="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:paddingBottom="5dp"
+                android:paddingTop="5dp"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:textSize="15sp"
+                        android:textColor="@color/colorPrimary"
+                        android:layout_gravity="center_vertical"
+                        android:layout_height="wrap_content"
+                        android:text="View" />
+
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="5dp"
+                        android:translationY="1dp"
+                        android:src="@drawable/next_arrow_dark"
+                        android:layout_height="17dp"/>
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/creation_time"
+            android:layout_width="wrap_content"
+            android:textSize="15sp"
+            android:layout_marginTop="5dp"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="bold"
+            android:layout_gravity="center_vertical"
+            android:layout_height="wrap_content"
+            android:text="1 week ago" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/donation_images"
+            android:layout_marginVertical="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:background="@color/colorAccent"
+            android:layout_marginTop="10dp"
+            android:alpha="0.5"
+            android:layout_height="1dp"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

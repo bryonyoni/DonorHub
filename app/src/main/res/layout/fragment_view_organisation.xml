@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Fragments.Homepage.ViewOrganisation">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <View
+                android:layout_width="match_parent"
+                android:background="@color/colorAccent"
+                android:alpha="0.5"
+                android:layout_height="200dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_marginTop="40dp"
+                android:paddingHorizontal="20dp"
+                android:orientation="vertical"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/organisation_name"
+                    android:layout_width="wrap_content"
+                    android:text="Nairobi Community group"
+                    android:textSize="25sp"
+                    android:textColor="@color/white"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:id="@+id/location"
+                    android:layout_width="wrap_content"
+                    android:textSize="19sp"
+                    android:layout_marginTop="15dp"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:layout_height="wrap_content"
+                    android:text="Nairobi" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:paddingHorizontal="15dp"
+            android:layout_marginTop="20dp"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:text="Donate an item to them."
+                android:textSize="15sp"
+                android:layout_centerVertical="true"
+                android:layout_height="wrap_content"/>
+
+            <RelativeLayout
+                android:id="@+id/open_new_donation_relative"
+                android:layout_width="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:paddingBottom="5dp"
+                android:paddingTop="5dp"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:textSize="15sp"
+                        android:textColor="@color/colorPrimary"
+                        android:layout_gravity="center_vertical"
+                        android:layout_height="wrap_content"
+                        android:text="Continue" />
+
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="5dp"
+                        android:translationY="1dp"
+                        android:src="@drawable/next_arrow_dark"
+                        android:layout_height="17dp"/>
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_marginHorizontal="15dp"
+            android:layout_marginTop="20dp"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:src="@drawable/twitter_icon"
+                android:layout_height="30dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:text="Find them on twitter."
+                android:textSize="15sp"
+                android:layout_marginStart="10dp"
+                android:layout_gravity="center_vertical"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_marginHorizontal="15dp"
+            android:layout_marginTop="20dp"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:src="@drawable/facebook_icon"
+                android:layout_height="30dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:text="Find them on facebook."
+                android:textSize="15sp"
+                android:layout_marginStart="10dp"
+                android:layout_gravity="center_vertical"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_marginHorizontal="15dp"
+            android:layout_marginTop="20dp"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:src="@drawable/instagram"
+                android:layout_height="30dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:text="Find them on instagram."
+                android:textSize="15sp"
+                android:layout_marginStart="10dp"
+                android:layout_gravity="center_vertical"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp"
+            android:layout_marginHorizontal="15dp"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:textSize="15sp"
+                android:textColor="@color/colorAccent"
+                android:textStyle="bold"
+                android:layout_height="wrap_content"
+                android:text="Activities" />
+
+            <View
+                android:layout_width="match_parent"
+                android:background="@color/colorAccent"
+                android:alpha="0.5"
+                android:layout_marginStart="10dp"
+                android:layout_gravity="center_vertical"
+                android:layout_height="1dp"/>
+
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/activities_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_marginTop="10dp"
+            android:layout_marginHorizontal="15dp"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+</FrameLayout>

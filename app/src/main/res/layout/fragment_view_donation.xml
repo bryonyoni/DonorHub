@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".Fragments.Homepage.ViewDonation">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
+        android:paddingHorizontal="25dp"
+        android:background="@color/back"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="match_parent">
+
+            <!--Top title part-->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/donation_desc"
+                    android:layout_width="wrap_content"
+                    android:textSize="22sp"
+                    android:textColor="@color/colorAccent"
+                    android:layout_centerVertical="true"
+                    android:layout_height="wrap_content"
+                    android:text="3 red sweaters" />
+
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/donation_time"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="5dp"
+                android:textSize="15sp"
+                android:layout_height="wrap_content"
+                android:text="Request sent 3 weeks ago." />
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/donation_images_recyclerview"
+                android:layout_marginTop="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                app:cardBackgroundColor="@color/white"
+                app:cardElevation="2dp"
+                app:cardCornerRadius="25dp"
+                android:layout_marginVertical="20dp"
+                android:layout_marginHorizontal="2dp"
+                android:layout_height="wrap_content">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:background="@color/colorAccent"
+                        android:alpha="0.5"
+                        android:layout_height="160dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_centerVertical="true"
+                        android:orientation="vertical"
+                        android:layout_marginHorizontal="15dp"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:textSize="15sp"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:layout_height="wrap_content"
+                            android:text="To:" />
+
+                        <TextView
+                            android:id="@+id/organisation_name"
+                            android:layout_width="wrap_content"
+                            android:text="Nairobi Community group"
+                            android:textSize="25sp"
+                            android:layout_marginTop="10dp"
+                            android:textColor="@color/white"
+                            android:layout_height="wrap_content"/>
+
+                        <TextView
+                            android:id="@+id/organisation_location"
+                            android:layout_width="wrap_content"
+                            android:textSize="19sp"
+                            android:layout_marginTop="15dp"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:layout_height="wrap_content"
+                            android:text="Nairobi" />
+
+                    </LinearLayout>
+
+                </RelativeLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp"
+                android:visibility="gone"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:textSize="15sp"
+                    android:textColor="@color/colorAccent"
+                    android:textStyle="bold"
+                    android:layout_height="wrap_content"
+                    android:text="Others" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:background="@color/colorAccent"
+                    android:alpha="0.5"
+                    android:layout_marginStart="10dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_height="1dp"/>
+
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/other_organisations"
+                android:layout_width="match_parent"
+                android:visibility="gone"
+                android:layout_marginTop="10dp"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</FrameLayout>
