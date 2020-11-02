@@ -11,6 +11,7 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bry.donorhub.Constants
 import com.bry.donorhub.Fragments.Authentication.SignIn
 import com.bry.donorhub.Model.Organisation
@@ -46,6 +47,8 @@ class PickOrganisation : Fragment() {
         }
     }
 
+    var when_data_updated: (organisations: ArrayList<Organisation>) -> Unit = {}
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -54,9 +57,26 @@ class PickOrganisation : Fragment() {
         val va = inflater.inflate(R.layout.fragment_pick_organisation, container, false)
         val open_donations_relative: RelativeLayout = va.findViewById(R.id.open_donations_relative)
         val organisations_recyclerview: RecyclerView = va.findViewById(R.id.organisations_recyclerview)
+        val swipeContainer: SwipeRefreshLayout = va.findViewById(R.id.swipeContainer)
 
         organisations_recyclerview.adapter = myOrganisationsListAdapter()
         organisations_recyclerview.layoutManager = LinearLayoutManager(context)
+
+        swipeContainer.setOnRefreshListener(object : SwipeRefreshLayout.OnRefreshListener {
+            override fun onRefresh() {
+                listener.whenReloadEverything()
+            }
+        })
+
+        when_data_updated = {
+            organisations = it
+            organisations_recyclerview.adapter?.notifyDataSetChanged()
+            swipeContainer.setRefreshing(false)
+        }
+
+        open_donations_relative.setOnClickListener {
+            listener.whenPickOrganisationOpenMyDonations()
+        }
 
         return va
     }
@@ -105,6 +125,8 @@ class PickOrganisation : Fragment() {
 
     interface PickOrganisationInterface{
         fun whenPickOrganisationOrgPicked(organisation: Organisation)
+        fun whenReloadEverything()
+        fun whenPickOrganisationOpenMyDonations()
     }
 
 

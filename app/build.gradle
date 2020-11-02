@@ -83,4 +83,5 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage-ktx:19.1.1'
     implementation 'com.android.support:multidex:1.0.3'
 
+    api 'com.theartofdev.edmodo:android-image-cropper:2.8.+'
 }

@@ -35,6 +35,8 @@ class SignIn : Fragment() {
         }
     }
 
+    var didPasscodeFail: () -> Unit = {}
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -62,6 +64,10 @@ class SignIn : Fragment() {
             }else{
                 listener.OnSubmitLogInDetails(email,password)
             }
+        }
+
+        didPasscodeFail = {
+            emailEditText.setError("Retype these details")
         }
 
         return v

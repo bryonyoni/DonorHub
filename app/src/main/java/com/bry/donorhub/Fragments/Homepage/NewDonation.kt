@@ -15,10 +15,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bry.donorhub.Constants
 import com.bry.donorhub.Model.Donation
+import com.bry.donorhub.Model.Organisation
 import com.bry.donorhub.R
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
+import com.google.gson.Gson
 
 
 class NewDonation : Fragment() {
@@ -27,8 +29,10 @@ class NewDonation : Fragment() {
     private var param2: String? = null
     private val ARG_PARAM1 = "param1"
     private val ARG_PARAM2 = "param2"
+    private val ARG_ORG = "ARG_ORG"
     private lateinit var listener: NewDonationInterface
     private var picked_images: ArrayList<Bitmap> = ArrayList()
+    private lateinit var organisation: Organisation
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,6 +40,7 @@ class NewDonation : Fragment() {
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
+            organisation = Gson().fromJson(it.getString(ARG_ORG), Organisation::class.java)
         }
     }
 
@@ -77,7 +82,7 @@ class NewDonation : Fragment() {
             }else if(picked_images.isEmpty()){
                 Toast.makeText(context, "add some images first!",Toast.LENGTH_SHORT).show()
             }else{
-                listener.whenNewDonationFinished(t,picked_images)
+                listener.whenNewDonationFinished(t,picked_images,organisation)
             }
         }
 
@@ -113,17 +118,18 @@ class NewDonation : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(param1: String, param2: String) =
+        fun newInstance(param1: String, param2: String, org: String) =
                 NewDonation().apply {
                     arguments = Bundle().apply {
                         putString(ARG_PARAM1, param1)
                         putString(ARG_PARAM2, param2)
+                        putString(ARG_ORG, org)
                     }
                 }
     }
 
     interface NewDonationInterface{
         fun whenNewDonationPickImage()
-        fun whenNewDonationFinished(text: String, images: ArrayList<Bitmap>)
+        fun whenNewDonationFinished(text: String, images: ArrayList<Bitmap>, organisation: Organisation)
     }
 }

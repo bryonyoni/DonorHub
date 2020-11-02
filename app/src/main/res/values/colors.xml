@@ -13,6 +13,7 @@
     <color name="colorPrimaryLight">#C6C8CC</color>
     <color name="colorAccent">#393E46</color>
     <color name="colorAirwork">#0064A9</color>
+    <color name="window_background">#EDEDED</color>
 
     <color name="back">#F1F1F1</color>
     <color name="back2">#FFFFFF</color>
