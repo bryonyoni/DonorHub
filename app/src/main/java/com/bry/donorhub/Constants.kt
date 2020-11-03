@@ -240,9 +240,9 @@ class Constants{
             storageReference.getBytes(ONE_MEGABYTE).addOnSuccessListener {
                 stop_image_loader()
                 val bmp = BitmapFactory.decodeByteArray(it, 0, it.size)
+//                SharedPreferenceManager((context)).set_local_image(storageReference.path, encodeImage(bmp,false)!!)
                 val final = getCroppedBitmap(bmp)
                 user_image.setImageBitmap(getResizedBitmap(final,200))
-                SharedPreferenceManager((context)).set_local_image(storageReference.path, encodeImage(bmp,false)!!)
 
             }.addOnFailureListener {
                 stop_image_loader()

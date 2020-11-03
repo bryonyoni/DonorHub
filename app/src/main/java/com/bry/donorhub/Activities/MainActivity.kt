@@ -1,5 +1,6 @@
 package com.bry.donorhub.Activities
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -222,9 +223,7 @@ class MainActivity : AppCompatActivity(),
                 imm.hideSoftInputFromWindow(view.windowToken, 0)
             }
 
-            //the user is anonymous, lets link their account
-            val credential = EmailAuthProvider.getCredential(email, passcode)
-            mAuth!!.currentUser!!.linkWithCredential(credential)
+            mAuth!!.createUserWithEmailAndPassword(email,passcode)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             Log.d("main", "authentication successful")
@@ -382,10 +381,16 @@ class MainActivity : AppCompatActivity(),
                 .add(binding.money.id, NewDonation.newInstance("", "", org), _new_donation).commit()
     }
 
+    private val PICK_IMAGE_REQUEST = 420
     override fun whenNewDonationPickImage() {
-        CropImage.activity()
-                .setGuidelines(CropImageView.Guidelines.ON)
-                .start(this)
+//        CropImage.activity()
+//                .setGuidelines(CropImageView.Guidelines.ON)
+//                .start(this)
+
+        val intent = Intent()
+        intent.type = "image/*"
+        intent.action = Intent.ACTION_GET_CONTENT
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -402,6 +407,23 @@ class MainActivity : AppCompatActivity(),
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 val error = result.error
+            }
+        }
+
+        //if were picking an image
+        if (requestCode == PICK_IMAGE_REQUEST
+                && resultCode == Activity.RESULT_OK
+                && data != null && data.data != null) {
+            if (data.data != null) {
+                val mFilepath = data.data!!
+                try {
+                    val bitmap: Bitmap = MediaStore.Images.Media.getBitmap(contentResolver, mFilepath)
+                    if(supportFragmentManager.findFragmentByTag(_new_donation)!=null){
+                        (supportFragmentManager.findFragmentByTag(_new_donation) as NewDonation).onImagePicked(bitmap)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         }
     }

@@ -2,6 +2,7 @@ package com.bry.donorhub.Fragments.Homepage
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.OrientationEventListener
@@ -19,6 +20,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import com.google.gson.Gson
+import java.util.*
 
 class ViewDonation : Fragment() {
     // TODO: Rename and change types of parameters
@@ -64,7 +66,7 @@ class ViewDonation : Fragment() {
 
 
         donation_desc.text = donation.description
-        donation_time.text = Constants().construct_elapsed_time(donation.creation_time)
+        donation_time.text = Constants().construct_elapsed_time(Calendar.getInstance().timeInMillis - donation.creation_time)
 
         organisation_name.text = organisation.name
         organisation_location.text = organisation.location_name
@@ -91,6 +93,7 @@ class ViewDonation : Fragment() {
                 .child(Constants().donation_data)
                 .child(donation.donation_id)
                 .child(image.name + ".jpg")
+            Log.e("ViewDonation", "storage reference is: ${storageReference.path}")
             Constants().load_round_job_image(storageReference, viewHolder.image_view, context!!)
 
         }

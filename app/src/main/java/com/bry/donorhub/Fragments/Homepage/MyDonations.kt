@@ -19,6 +19,8 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import com.google.gson.Gson
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class MyDonations : Fragment() {
@@ -74,7 +76,7 @@ class MyDonations : Fragment() {
             var donation = donations[position]
 
             viewHolder.donation_desc.text = donation.description
-            viewHolder.creation_time.text = Constants().construct_elapsed_time(donation.creation_time)
+            viewHolder.creation_time.text = Constants().construct_elapsed_time(Calendar.getInstance().timeInMillis - donation.creation_time)
 
             viewHolder.view_donation_relative.setOnClickListener {
                 listener.whenMyDonationViewDonation(donation)
@@ -108,7 +110,7 @@ class MyDonations : Fragment() {
 
         override fun onBindViewHolder(viewHolder: ViewHolderImages, position: Int) {
             val image = donation.images[position]
-
+            viewHolder.image_view.setDrawingCacheEnabled(false)
             val storageReference: StorageReference = Firebase.storage.reference
                 .child(Constants().donation_data)
                 .child(donation.donation_id)

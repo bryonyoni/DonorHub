@@ -69,7 +69,7 @@ class NewDonation : Fragment() {
         }
 
         added_images_recyclerview.adapter = ImageListAdapter()
-        added_images_recyclerview.layoutManager = LinearLayoutManager(context)
+        added_images_recyclerview.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 
         add_image.setOnClickListener{
             listener.whenNewDonationPickImage()
@@ -99,6 +99,7 @@ class NewDonation : Fragment() {
 
         override fun onBindViewHolder(viewHolder: ViewHolderImages, position: Int) {
             val image = picked_images[position]
+            viewHolder.image_view.setDrawingCacheEnabled(false)
             viewHolder.image_view.setImageBitmap(Constants().getCroppedBitmap(image))
 
             viewHolder.image_view.setOnClickListener {
