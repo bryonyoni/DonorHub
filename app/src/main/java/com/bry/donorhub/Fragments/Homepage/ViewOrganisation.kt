@@ -59,6 +59,7 @@ class ViewOrganisation : Fragment() {
         val location: TextView = va.findViewById(R.id.location)
         val open_new_donation_relative: RelativeLayout = va.findViewById(R.id.open_new_donation_relative)
         val activities_recyclerview: RecyclerView = va.findViewById(R.id.activities_recyclerview)
+        val org_image: ImageView = va.findViewById(R.id.org_image)
 
         organisation_name.text = organisation.name
         location.text = organisation.location_name
@@ -74,6 +75,13 @@ class ViewOrganisation : Fragment() {
                 activities_recyclerview.layoutManager = LinearLayoutManager(context)
             }
         }
+
+        val d = organisation.org_id
+        val storageReference = Firebase.storage.reference
+                .child("organisation_backgrounds")
+                .child("${d}.jpg")
+
+        Constants().load_normal_job_image(storageReference, org_image, context!!)
 
         return va
     }

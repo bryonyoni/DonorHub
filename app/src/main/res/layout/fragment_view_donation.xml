@@ -14,135 +14,263 @@
         android:background="@color/back"
         android:layout_height="match_parent">
 
-        <LinearLayout
+        <ScrollView
             android:layout_width="match_parent"
-            android:orientation="vertical"
+            android:scrollbars="none"
             android:layout_height="match_parent">
 
-            <!--Top title part-->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/donation_desc"
-                    android:layout_width="wrap_content"
-                    android:textSize="22sp"
-                    android:textColor="@color/colorAccent"
-                    android:layout_centerVertical="true"
-                    android:layout_height="wrap_content"
-                    android:text="3 red sweaters" />
-
-
-            </RelativeLayout>
-
-            <TextView
-                android:id="@+id/donation_time"
-                android:layout_width="wrap_content"
-                android:layout_marginTop="5dp"
-                android:textSize="15sp"
-                android:layout_height="wrap_content"
-                android:text="Request sent 3 weeks ago." />
-
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/donation_images_recyclerview"
-                android:layout_marginTop="20dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                app:cardBackgroundColor="@color/white"
-                app:cardElevation="2dp"
-                app:cardCornerRadius="25dp"
-                android:layout_marginVertical="20dp"
-                android:layout_marginHorizontal="2dp"
-                android:layout_height="wrap_content">
-
-                <RelativeLayout
+                <LinearLayout
                     android:layout_width="match_parent"
+                    android:orientation="vertical"
                     android:layout_height="wrap_content">
 
-                    <View
+                    <!--Top title part-->
+                    <RelativeLayout
                         android:layout_width="match_parent"
-                        android:background="@color/colorAccent"
-                        android:alpha="0.5"
-                        android:layout_height="160dp"/>
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/donation_desc"
+                            android:layout_width="wrap_content"
+                            android:textSize="22sp"
+                            android:textColor="@color/colorAccent"
+                            android:layout_centerVertical="true"
+                            android:layout_height="wrap_content"
+                            android:text="3 red sweaters" />
+
+
+                    </RelativeLayout>
+
+                    <TextView
+                        android:id="@+id/donation_time"
+                        android:layout_width="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:textSize="15sp"
+                        android:layout_height="wrap_content"
+                        android:text="Request sent 3 weeks ago." />
+
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/donation_images_recyclerview"
+                        android:layout_marginTop="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        app:cardBackgroundColor="@color/white"
+                        app:cardElevation="2dp"
+                        app:cardCornerRadius="15dp"
+                        android:layout_marginVertical="10dp"
+                        android:layout_marginHorizontal="2dp"
+                        android:layout_height="wrap_content">
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:id="@+id/org_image"
+                                android:scaleType="centerCrop"
+                                android:layout_width="match_parent"
+                                android:src="@color/colorAccent"
+                                android:layout_height="160dp"/>
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:alpha="0.4"
+                                android:background="@color/black"
+                                android:layout_height="160dp"/>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_centerVertical="true"
+                                android:orientation="vertical"
+                                android:layout_marginHorizontal="15dp"
+                                android:layout_height="wrap_content">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:textSize="15sp"
+                                    android:textColor="@color/white"
+                                    android:textStyle="bold"
+                                    android:layout_height="wrap_content"
+                                    android:text="To:" />
+
+                                <TextView
+                                    android:id="@+id/organisation_name"
+                                    android:layout_width="wrap_content"
+                                    android:text="Nairobi Community group"
+                                    android:textSize="25sp"
+                                    android:layout_marginTop="10dp"
+                                    android:textColor="@color/white"
+                                    android:layout_height="wrap_content"/>
+
+                                <TextView
+                                    android:id="@+id/organisation_location"
+                                    android:layout_width="wrap_content"
+                                    android:textSize="19sp"
+                                    android:layout_marginTop="15dp"
+                                    android:textColor="@color/white"
+                                    android:textStyle="bold"
+                                    android:layout_height="wrap_content"
+                                    android:text="Nairobi" />
+
+                            </LinearLayout>
+
+                        </RelativeLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <TextView
+                        android:id="@+id/collector_textview"
+                        android:layout_width="wrap_content"
+                        android:text=""
+                        android:layout_marginTop="10dp"
+                        android:textSize="15sp"
+                        android:textColor="@color/colorAccent"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/collection_date"
+                        android:layout_width="wrap_content"
+                        android:text=""
+                        android:textSize="13sp"
+                        android:layout_height="wrap_content"/>
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/location_container"
+                        android:layout_width="match_parent"
+                        app:cardBackgroundColor="@color/white"
+                        app:cardElevation="2dp"
+                        android:visibility="gone"
+                        app:cardCornerRadius="15dp"
+                        android:layout_marginVertical="10dp"
+                        android:layout_marginHorizontal="2dp"
+                        android:layout_height="230dp">
+
+                        <RelativeLayout
+                            android:id="@+id/map_layout"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"/>
+
+                        <RelativeLayout
+                            android:id="@+id/v3"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"/>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:visibility="gone"
+                        android:layout_marginTop="10dp"
+                        android:layout_height="wrap_content">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_marginTop="5dp"
+                                android:textSize="17sp"
+                                android:textStyle="bold"
+                                android:layout_height="wrap_content"
+                                android:text="Location." />
+
+                            <TextView
+                                android:id="@+id/location_text"
+                                android:layout_width="wrap_content"
+                                android:layout_marginTop="5dp"
+                                android:textSize="15sp"
+                                android:layout_height="wrap_content"
+                                android:text="View your set pick up location" />
+
+
+                        </LinearLayout>
+
+                        <RelativeLayout
+                            android:id="@+id/view_location_layout"
+                            android:layout_width="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:paddingBottom="5dp"
+                            android:paddingTop="5dp"
+                            android:layout_height="wrap_content">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center"
+                                android:layout_height="wrap_content">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:textSize="17sp"
+                                    android:layout_gravity="center_vertical"
+                                    android:textColor="@color/colorPrimary"
+                                    android:layout_height="wrap_content"
+                                    android:text="View" />
+
+
+                                <ImageView
+                                    android:layout_width="21dp"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_marginStart="5dp"
+                                    android:translationY="1dp"
+                                    android:src="@drawable/next_arrow_dark"
+                                    android:layout_height="18dp"/>
+
+                            </LinearLayout>
+
+                        </RelativeLayout>
+
+                    </RelativeLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_centerVertical="true"
-                        android:orientation="vertical"
-                        android:layout_marginHorizontal="15dp"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="10dp"
+                        android:visibility="visible"
                         android:layout_height="wrap_content">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:textSize="15sp"
-                            android:textColor="@color/white"
+                            android:textColor="@color/colorAccent"
                             android:textStyle="bold"
                             android:layout_height="wrap_content"
-                            android:text="To:" />
+                            android:text="Activities" />
 
-                        <TextView
-                            android:id="@+id/organisation_name"
-                            android:layout_width="wrap_content"
-                            android:text="Nairobi Community group"
-                            android:textSize="25sp"
-                            android:layout_marginTop="10dp"
-                            android:textColor="@color/white"
-                            android:layout_height="wrap_content"/>
-
-                        <TextView
-                            android:id="@+id/organisation_location"
-                            android:layout_width="wrap_content"
-                            android:textSize="19sp"
-                            android:layout_marginTop="15dp"
-                            android:textColor="@color/white"
-                            android:textStyle="bold"
-                            android:layout_height="wrap_content"
-                            android:text="Nairobi" />
+                        <View
+                            android:layout_width="match_parent"
+                            android:background="@color/colorAccent"
+                            android:alpha="0.5"
+                            android:layout_marginStart="10dp"
+                            android:layout_gravity="center_vertical"
+                            android:layout_height="1dp"/>
 
                     </LinearLayout>
 
-                </RelativeLayout>
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/activities_recyclerview"
+                        android:layout_width="match_parent"
+                        android:visibility="visible"
+                        android:layout_marginTop="10dp"
+                        android:layout_height="300dp"/>
 
-            </androidx.cardview.widget.CardView>
+                </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:layout_marginTop="10dp"
-                android:visibility="gone"
-                android:layout_height="wrap_content">
+            </RelativeLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:textSize="15sp"
-                    android:textColor="@color/colorAccent"
-                    android:textStyle="bold"
-                    android:layout_height="wrap_content"
-                    android:text="Others" />
+        </ScrollView>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:background="@color/colorAccent"
-                    android:alpha="0.5"
-                    android:layout_marginStart="10dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_height="1dp"/>
 
-            </LinearLayout>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/other_organisations"
-                android:layout_width="match_parent"
-                android:visibility="gone"
-                android:layout_marginTop="10dp"
-                android:layout_height="wrap_content"/>
-
-        </LinearLayout>
 
     </RelativeLayout>
 

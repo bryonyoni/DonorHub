@@ -250,6 +250,27 @@ class Constants{
         }
     }
 
+    fun load_normal_job_image(storageReference: StorageReference, user_image: ImageView, context: Context){
+        if(!SharedPreferenceManager(context).get_local_image(storageReference.path).equals("")){
+            val final = decodeImage(SharedPreferenceManager(context).get_local_image(storageReference.path))
+//            val image_circle = getCroppedBitmap(final)
+            user_image.setImageBitmap(getResizedBitmap(final,200))
+        }else{
+            val ONE_MEGABYTE: Long = 1024 * 1024
+            start_image_loader(user_image)
+            storageReference.getBytes(ONE_MEGABYTE).addOnSuccessListener {
+                stop_image_loader()
+                val bmp = BitmapFactory.decodeByteArray(it, 0, it.size)
+                SharedPreferenceManager((context)).set_local_image(storageReference.path, encodeImage(bmp.copy(bmp.getConfig(), true),false)!!)
+//                val final = getCroppedBitmap(bmp)
+                user_image.setImageBitmap(getResizedBitmap(bmp,200))
+
+            }.addOnFailureListener {
+                stop_image_loader()
+            }
+        }
+    }
+
     fun getResizedBitmap(image: Bitmap, maxSize: Int): Bitmap? {
         var width = image.width
         var height = image.height

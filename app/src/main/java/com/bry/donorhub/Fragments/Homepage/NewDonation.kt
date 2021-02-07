@@ -2,25 +2,25 @@ package com.bry.donorhub.Fragments.Homepage
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.RelativeLayout
-import android.widget.Toast
+import android.widget.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bry.donorhub.Constants
 import com.bry.donorhub.Model.Donation
 import com.bry.donorhub.Model.Organisation
 import com.bry.donorhub.R
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import com.google.gson.Gson
+import java.io.ByteArrayOutputStream
 
 
 class NewDonation : Fragment() {
@@ -31,8 +31,9 @@ class NewDonation : Fragment() {
     private val ARG_PARAM2 = "param2"
     private val ARG_ORG = "ARG_ORG"
     private lateinit var listener: NewDonationInterface
-    private var picked_images: ArrayList<Bitmap> = ArrayList()
+    private var picked_images: ArrayList<ByteArray> = ArrayList()
     private lateinit var organisation: Organisation
+    private var location: LatLng = LatLng(0.0,0.0)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,6 +54,8 @@ class NewDonation : Fragment() {
 
     var onImagePicked: (pic_name: Bitmap) -> Unit = {}
 
+    var onLocationPicked: (picked_loc: LatLng) -> Unit = {}
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
@@ -61,15 +64,21 @@ class NewDonation : Fragment() {
         val descriptionEditText: EditText = va.findViewById(R.id.descriptionEditText)
         val add_image: ImageView = va.findViewById(R.id.add_image)
         val added_images_recyclerview: RecyclerView = va.findViewById(R.id.added_images_recyclerview)
+        val set_location_layout: RelativeLayout = va.findViewById(R.id.set_location_layout)
+        val location_text: TextView = va.findViewById(R.id.location_text)
 
         onImagePicked = {
-            picked_images.add(it)
+            val baos = ByteArrayOutputStream()
+            it.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+            picked_images.add(baos.toByteArray())
+
             added_images_recyclerview.adapter?.notifyDataSetChanged()
             Toast.makeText(context, "image added",Toast.LENGTH_SHORT).show()
         }
 
         added_images_recyclerview.adapter = ImageListAdapter()
-        added_images_recyclerview.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        added_images_recyclerview.layoutManager = LinearLayoutManager(context,
+                LinearLayoutManager.HORIZONTAL, false)
 
         add_image.setOnClickListener{
             listener.whenNewDonationPickImage()
@@ -81,9 +90,23 @@ class NewDonation : Fragment() {
                 descriptionEditText.error = "Type something"
             }else if(picked_images.isEmpty()){
                 Toast.makeText(context, "add some images first!",Toast.LENGTH_SHORT).show()
-            }else{
-                listener.whenNewDonationFinished(t,picked_images,organisation)
+            }else if(location.latitude==0.0 && location.longitude==0.0){
+                Toast.makeText(context, "add a location first",Toast.LENGTH_SHORT).show()
             }
+
+            else{
+                Toast.makeText(context, "upload donation", Toast.LENGTH_SHORT).show()
+                listener.whenNewDonationFinished(t,picked_images,organisation,location)
+            }
+        }
+
+        set_location_layout.setOnClickListener {
+            listener.whenNewDonationPickLocation()
+        }
+
+        onLocationPicked = {
+            location_text.text = "Location set."
+            location = it
         }
 
         return va
@@ -100,7 +123,8 @@ class NewDonation : Fragment() {
         override fun onBindViewHolder(viewHolder: ViewHolderImages, position: Int) {
             val image = picked_images[position]
             viewHolder.image_view.setDrawingCacheEnabled(false)
-            viewHolder.image_view.setImageBitmap(Constants().getCroppedBitmap(image))
+            viewHolder.image_view.setImageBitmap(Constants()
+                    .getCroppedBitmap(BitmapFactory.decodeByteArray(image, 0, image.size)))
 
             viewHolder.image_view.setOnClickListener {
                 picked_images.removeAt(position)
@@ -131,6 +155,7 @@ class NewDonation : Fragment() {
 
     interface NewDonationInterface{
         fun whenNewDonationPickImage()
-        fun whenNewDonationFinished(text: String, images: ArrayList<Bitmap>, organisation: Organisation)
+        fun whenNewDonationFinished(text: String, images: ArrayList<ByteArray>, organisation: Organisation, location: LatLng)
+        fun whenNewDonationPickLocation()
     }
 }

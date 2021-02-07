@@ -5,6 +5,11 @@
     android:layout_height="match_parent"
     tools:context=".Fragments.Homepage.ViewOrganisation">
 
+    <View
+        android:layout_width="match_parent"
+        android:background="@color/back2"
+        android:layout_height="match_parent"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:orientation="vertical"
@@ -14,10 +19,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <ImageView
+                android:id="@+id/org_image"
+                android:scaleType="centerCrop"
+                android:layout_width="match_parent"
+                android:src="@color/colorAccent"
+                android:layout_height="200dp"/>
+
             <View
                 android:layout_width="match_parent"
-                android:background="@color/colorAccent"
-                android:alpha="0.5"
+                android:alpha="0.4"
+                android:background="@color/black"
                 android:layout_height="200dp"/>
 
             <LinearLayout
@@ -169,6 +181,7 @@
             android:layout_width="match_parent"
             android:orientation="horizontal"
             android:layout_marginTop="20dp"
+            android:visibility="gone"
             android:layout_marginHorizontal="15dp"
             android:layout_height="wrap_content">
 
@@ -193,6 +206,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/activities_recyclerview"
             android:layout_width="match_parent"
+            android:visibility="gone"
             android:layout_marginTop="10dp"
             android:layout_marginHorizontal="15dp"
             android:layout_height="wrap_content"/>
