@@ -18,6 +18,7 @@ import com.bry.donorhub.Constants
 import com.bry.donorhub.Model.Donation
 import com.bry.donorhub.Model.Organisation
 import com.bry.donorhub.R
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
@@ -33,9 +34,11 @@ class ViewDonation : Fragment() {
     private val ARG_ORGANISATION = "ARG_ORGANISATION"
     private val ARG_DONATION = "ARG_DONATION"
     private val ARG_ACTIVITIES = "ARG_ACTIVITIES"
+    private val ARG_COLLECTOR_USER = "ARG_COLLECTOR_USER"
     private val _view_donation_location = "_view_donation_location"
     private lateinit var organisation: Organisation
     private lateinit var donation: Donation
+    private lateinit var user: Constants.user
     private lateinit var activities: ArrayList<Donation.activity>
     private lateinit var listener: ViewDonationInterface
 
@@ -47,6 +50,7 @@ class ViewDonation : Fragment() {
             organisation = Gson().fromJson(it.getString(ARG_ORGANISATION), Organisation::class.java)
             donation = Gson().fromJson(it.getString(ARG_DONATION) as String, Donation::class.java)
             activities = Gson().fromJson(it.getString(ARG_ACTIVITIES), Donation.activities::class.java).activities
+            user = Gson().fromJson(it.getString(ARG_COLLECTOR_USER), Constants.user::class.java)
         }
     }
 
@@ -76,13 +80,20 @@ class ViewDonation : Fragment() {
         val collector_textview: TextView = va.findViewById(R.id.collector_textview)
         val collection_date: TextView = va.findViewById(R.id.collection_date)
         val org_image: ImageView = va.findViewById(R.id.org_image)
+        val is_taken_down: TextView = va.findViewById(R.id.is_taken_down)
+        val edit_layout: RelativeLayout = va.findViewById(R.id.edit_layout)
+
+        val user_image: ImageView = va.findViewById(R.id.user_image)
+        val collector_relative: RelativeLayout = va.findViewById(R.id.collector_relative)
+        val collector_phone: TextView = va.findViewById(R.id.collector_phone)
 
         val v3: RelativeLayout = va.findViewById(R.id.v3)
         v3.setOnTouchListener { v, event -> true }
 
 
         donation_desc.text = donation.description
-        donation_time.text = Constants().construct_elapsed_time(Calendar.getInstance().timeInMillis - donation.creation_time)
+        val age = Constants().construct_elapsed_time(Calendar.getInstance().timeInMillis - donation.creation_time)
+        donation_time.text = "Request sent $age ago."
 
         organisation_name.text = organisation.name
         organisation_location.text = organisation.location_name
@@ -101,11 +112,22 @@ class ViewDonation : Fragment() {
         }
 
         if (donation.collectors!=null){
-            var name = donation.collectors!!.name
+            collector_relative.visibility = View.VISIBLE
+            var name = "Scheduled collector: ${donation.collectors!!.name}"
             collector_textview.text = name
+
             var t = Calendar.getInstance()
             t.timeInMillis = donation.pick_up_time
-            collection_date.text = t.time.toString()
+
+            collection_date.text = "Pick up date: ${t.time.toString()}"
+            collector_phone.text = "${user.phone.country_number_code} ${user.phone.digit_number}"
+
+            val d2 = user.uid
+            val storageReference2 = Firebase.storage.reference
+                .child("avatar_backgrounds")
+                .child("${d2}.jpg")
+
+            Constants().load_round_job_image(storageReference2, user_image, context!!)
         }
 
 
@@ -124,6 +146,17 @@ class ViewDonation : Fragment() {
                 .child("${d}.jpg")
 
         Constants().load_normal_job_image(storageReference, org_image, context!!)
+
+
+        if(donation.is_taken_down){
+            is_taken_down.visibility = View.VISIBLE
+        }else{
+            is_taken_down.visibility = View.INVISIBLE
+        }
+
+        edit_layout.setOnClickListener {
+            listener.editDonation(donation, organisation)
+        }
 
         return va
     }
@@ -186,7 +219,7 @@ class ViewDonation : Fragment() {
     companion object {
 
         @JvmStatic
-        fun newInstance(param1: String, param2: String, organisation: String, donation: String, activites: String) =
+        fun newInstance(param1: String, param2: String, organisation: String, donation: String, activites: String, user: String) =
             ViewDonation().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
@@ -194,11 +227,13 @@ class ViewDonation : Fragment() {
                     putString(ARG_ORGANISATION,organisation)
                     putString(ARG_DONATION,donation)
                     putString(ARG_ACTIVITIES, activites)
+                    putString(ARG_COLLECTOR_USER,user)
                 }
             }
     }
 
     interface ViewDonationInterface{
         fun viewDonationLocation(donation: Donation)
+        fun editDonation(donation: Donation, organ: Organisation)
     }
 }

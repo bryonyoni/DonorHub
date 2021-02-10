@@ -59,7 +59,8 @@ class MainActivity : AppCompatActivity(),
         NewDonation.NewDonationInterface,
         MyDonations.MyDonationsInterface,
         PickMapLocation.PickMapLocationInterface,
-        ViewDonation.ViewDonationInterface
+        ViewDonation.ViewDonationInterface,
+        EditDonation.EditDonationInterface
 {
     val TAG = "MainActivity"
     val constants = Constants()
@@ -75,6 +76,7 @@ class MainActivity : AppCompatActivity(),
     val _view_donation = "_view_donation"
     val _map_fragment = "_map_fragment"
     val _view_donation_location = "_view_donation_location"
+    val _edit_donation = "_edit_donation"
 
     private lateinit var binding: ActivityMainBinding
     val db = Firebase.firestore
@@ -82,6 +84,7 @@ class MainActivity : AppCompatActivity(),
     private var donations: ArrayList<Donation> = ArrayList()
     private var organisations: ArrayList<Organisation> = ArrayList()
     private var activities: ArrayList<Donation.activity> = ArrayList()
+    private var users : ArrayList<Constants.user> = ArrayList()
     var doubleBackToExitPressedOnce: Boolean = false
     var is_loading: Boolean = false
 
@@ -145,6 +148,7 @@ class MainActivity : AppCompatActivity(),
         organisations.clear()
         donations.clear()
         activities.clear()
+        users.clear()
 
         db.collection("organisations").get().addOnSuccessListener {
             if(!it.isEmpty){
@@ -171,6 +175,7 @@ class MainActivity : AppCompatActivity(),
                         if(doc.contains("pick_up_time")){
                             don.pick_up_time = doc["pick_up_time"] as Long
                         }
+
                         donations.add(don)
                     }
                 }
@@ -193,6 +198,19 @@ class MainActivity : AppCompatActivity(),
             }
         }
 
+        db.collection(constants.coll_users).get().addOnSuccessListener {
+            for(user in it.documents) {
+                val name = user.get("name") as String
+                val email = user.get("email") as String
+                val uid = user.get("uid") as String
+                val user_country = user.get("user_country") as String
+                val sign_up_time = user.get("sign_up_time") as Long
+                val numbr = Gson().fromJson(user.get("phone_number") as String, Number::class.java)
+
+                val us = Constants().user(numbr, email, name, sign_up_time, uid)
+                users.add(us)
+            }
+        }
 
     }
 
@@ -428,7 +446,29 @@ class MainActivity : AppCompatActivity(),
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST)
     }
 
+    override fun whenEditDonationPickImage() {
+        val intent = Intent()
+        intent.type = "image/*"
+        intent.action = Intent.ACTION_GET_CONTENT
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST)
+    }
 
+    override fun whenEditDonationFinished(donation: Donation) {
+        showLoadingScreen()
+
+        val ref = db.collection("donations")
+            .document(donation.donation_id)
+
+        ref.update(mapOf(
+            "don_obj" to Gson().toJson(donation),
+            "taken_down" to donation.is_taken_down,
+        )).addOnSuccessListener {
+            hideLoadingScreen()
+            Toast.makeText(applicationContext, "done!", Toast.LENGTH_SHORT).show()
+            onBackPressed()
+        }
+
+    }
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -458,6 +498,9 @@ class MainActivity : AppCompatActivity(),
                     val bitmap: Bitmap = MediaStore.Images.Media.getBitmap(contentResolver, mFilepath)
                     if(supportFragmentManager.findFragmentByTag(_new_donation)!=null){
                         (supportFragmentManager.findFragmentByTag(_new_donation) as NewDonation).onImagePicked(bitmap)
+                    }
+                    if(supportFragmentManager.findFragmentByTag(_edit_donation)!=null){
+                        (supportFragmentManager.findFragmentByTag(_edit_donation) as EditDonation).onImagePicked(bitmap)
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -551,8 +594,18 @@ class MainActivity : AppCompatActivity(),
 
         var act_string = Gson().toJson(Donation.activities(org_activities))
 
+        var user = Gson().toJson(users[0])
+
+        if (donation.collectors!=null) {
+            for (item in users) {
+                if (item.uid.equals(donation.collectors?.uid)) {
+                    user = Gson().toJson(item)
+                }
+            }
+        }
+
         supportFragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
-                .add(binding.money.id, ViewDonation.newInstance("", "", org, don, act_string), _view_donation).commit()
+                .add(binding.money.id, ViewDonation.newInstance("", "", org, don, act_string,user), _view_donation).commit()
     }
 
     override fun whenMyDonationViewDonation(donation: Donation) {
@@ -677,6 +730,12 @@ class MainActivity : AppCompatActivity(),
         Log.e(TAG, "viewing donation")
         supportFragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
                 .add(binding.money.id, ViewDonationLocation.newInstance(don), _view_donation_location).commit()
+    }
+
+    override fun editDonation(donation: Donation, organ: Organisation) {
+        supportFragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+            .add(binding.money.id, EditDonation.newInstance("", "",
+                Gson().toJson(donation), Gson().toJson(organ)), _edit_donation).commit()
     }
 
 }
