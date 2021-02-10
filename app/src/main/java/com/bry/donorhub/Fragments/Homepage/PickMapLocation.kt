@@ -45,6 +45,7 @@ class PickMapLocation : Fragment() {
     private val callback = OnMapReadyCallback { googleMap ->
         mMap = googleMap
         has_map_been_loaded = true
+        mMap.uiSettings.isZoomControlsEnabled = true
 
         whenMyLocationGotten = {
             mLastKnownLocations.add(it)

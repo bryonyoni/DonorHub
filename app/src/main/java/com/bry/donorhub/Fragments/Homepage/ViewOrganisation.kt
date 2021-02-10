@@ -1,6 +1,8 @@
 package com.bry.donorhub.Fragments.Homepage
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -61,6 +63,10 @@ class ViewOrganisation : Fragment() {
         val activities_recyclerview: RecyclerView = va.findViewById(R.id.activities_recyclerview)
         val org_image: ImageView = va.findViewById(R.id.org_image)
 
+        val twitter: TextView = va.findViewById(R.id.twitter)
+        val facebook: TextView = va.findViewById(R.id.facebook)
+        val instagram: TextView = va.findViewById(R.id.instagram)
+
         organisation_name.text = organisation.name
         location.text = organisation.location_name
 
@@ -82,6 +88,27 @@ class ViewOrganisation : Fragment() {
                 .child("${d}.jpg")
 
         Constants().load_normal_job_image(storageReference, org_image, context!!)
+
+        twitter.setOnClickListener {
+            val url = "http://www.twitter.com"
+            val i = Intent(Intent.ACTION_VIEW)
+            i.data = Uri.parse(url)
+            startActivity(i)
+        }
+
+        facebook.setOnClickListener {
+            val url = "http://www.facebook.com"
+            val i = Intent(Intent.ACTION_VIEW)
+            i.data = Uri.parse(url)
+            startActivity(i)
+        }
+
+        instagram.setOnClickListener {
+            val url = "http://www.instagram.com"
+            val i = Intent(Intent.ACTION_VIEW)
+            i.data = Uri.parse(url)
+            startActivity(i)
+        }
 
         return va
     }

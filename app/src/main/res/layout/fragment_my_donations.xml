@@ -2,15 +2,29 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="@color/back"
     android:layout_height="match_parent"
     tools:context=".Fragments.Homepage.MyDonations">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_height="wrap_content">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            app:cardBackgroundColor="@color/white"
+            app:cardElevation="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_height="60dp"/>
+
+    </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:paddingTop="20dp"
         android:paddingBottom="20dp"
         android:paddingHorizontal="25dp"
-        android:background="@color/back"
         android:layout_height="match_parent">
 
         <LinearLayout
@@ -38,7 +52,7 @@
             <TextView
                 android:id="@+id/intro"
                 android:layout_width="wrap_content"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="20dp"
                 android:textSize="15sp"
                 android:layout_height="wrap_content"
                 android:text="The donations you make will be seen here." />
