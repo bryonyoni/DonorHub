@@ -64,8 +64,12 @@ class EditDonation : Fragment() {
         val add_image: ImageView = va.findViewById(R.id.add_image)
         val added_images_recyclerview: RecyclerView = va.findViewById(R.id.added_images_recyclerview)
         val takenDownSwitch: Switch = va.findViewById(R.id.takenDownSwitch)
+        val mass_editText: EditText = va.findViewById(R.id.mass_editText)
+        val quantity_editText: EditText = va.findViewById(R.id.quantity_editText)
 
         descriptionEditText.setText(donation.description)
+        mass_editText.setText(donation.mass)
+        quantity_editText.setText(donation.quantity)
 
         onImagePicked = {
             val baos = ByteArrayOutputStream()
@@ -90,15 +94,24 @@ class EditDonation : Fragment() {
 
         finish_layout.setOnClickListener {
             val t = descriptionEditText.text.toString().trim()
+            val mass = mass_editText.text.toString().trim()
+            val quantity = quantity_editText.text.toString().trim()
+
             if(t.equals("")){
                 descriptionEditText.error = "Type something"
             }else if(donation.images.isEmpty()){
                 Toast.makeText(context, "add some images first!",Toast.LENGTH_SHORT).show()
+            }else if(mass.equals("")){
+                mass_editText.setError("Type something")
+            }else if(quantity.equals("")){
+                quantity_editText.setError("Type something")
             }
 
             else{
                 Toast.makeText(context, "upload donation", Toast.LENGTH_SHORT).show()
                 donation.description = t
+                donation.mass = mass
+                donation.quantity = quantity
                 listener.whenEditDonationFinished(donation)
             }
         }

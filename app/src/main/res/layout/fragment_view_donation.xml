@@ -21,16 +21,69 @@
 
     </RelativeLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:paddingTop="20dp"
         android:paddingBottom="20dp"
+        android:orientation="vertical"
         android:paddingHorizontal="25dp"
         android:layout_height="match_parent">
+
+        <!--Top title part-->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/donation_desc"
+                android:layout_width="wrap_content"
+                android:textSize="22sp"
+                android:textColor="@color/colorAccent"
+                android:layout_centerVertical="true"
+                android:layout_height="wrap_content"
+                android:text="3 red sweaters" />
+
+            <RelativeLayout
+                android:id="@+id/edit_layout"
+                android:layout_width="wrap_content"
+                android:layout_alignParentRight="true"
+                android:paddingBottom="5dp"
+                android:paddingTop="5dp"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:textSize="17sp"
+                        android:layout_gravity="center_vertical"
+                        android:textColor="@color/colorPrimary"
+                        android:layout_height="wrap_content"
+                        android:text="Edit" />
+
+
+                    <ImageView
+                        android:layout_width="21dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="5dp"
+                        android:translationY="1dp"
+                        android:src="@drawable/next_arrow_dark"
+                        android:layout_height="18dp"/>
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+        </RelativeLayout>
 
         <ScrollView
             android:layout_width="match_parent"
             android:scrollbars="none"
+            android:layout_marginTop="20dp"
             android:layout_height="match_parent">
 
             <RelativeLayout
@@ -42,60 +95,8 @@
                     android:orientation="vertical"
                     android:layout_height="wrap_content">
 
-                    <!--Top title part-->
                     <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <TextView
-                            android:id="@+id/donation_desc"
-                            android:layout_width="wrap_content"
-                            android:textSize="22sp"
-                            android:textColor="@color/colorAccent"
-                            android:layout_centerVertical="true"
-                            android:layout_height="wrap_content"
-                            android:text="3 red sweaters" />
-
-                        <RelativeLayout
-                            android:id="@+id/edit_layout"
-                            android:layout_width="wrap_content"
-                            android:layout_alignParentRight="true"
-                            android:paddingBottom="5dp"
-                            android:paddingTop="5dp"
-                            android:layout_height="wrap_content">
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:orientation="horizontal"
-                                android:gravity="center"
-                                android:layout_height="wrap_content">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:textSize="17sp"
-                                    android:layout_gravity="center_vertical"
-                                    android:textColor="@color/colorPrimary"
-                                    android:layout_height="wrap_content"
-                                    android:text="Edit" />
-
-
-                                <ImageView
-                                    android:layout_width="21dp"
-                                    android:layout_gravity="center_vertical"
-                                    android:layout_marginStart="5dp"
-                                    android:translationY="1dp"
-                                    android:src="@drawable/next_arrow_dark"
-                                    android:layout_height="18dp"/>
-
-                            </LinearLayout>
-
-                        </RelativeLayout>
-
-                    </RelativeLayout>
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_marginTop="20dp"
                         android:layout_height="wrap_content">
 
                         <TextView
@@ -117,6 +118,14 @@
                             android:text="Taken down." />
 
                     </RelativeLayout>
+
+                    <TextView
+                        android:id="@+id/quantity_mass_time"
+                        android:visibility="gone"
+                        android:layout_width="wrap_content"
+                        android:textSize="15sp"
+                        android:layout_height="wrap_content"
+                        android:text="3(items) - 6Kgs" />
 
 
                     <androidx.recyclerview.widget.RecyclerView
@@ -368,6 +377,6 @@
 
 
 
-    </RelativeLayout>
+    </LinearLayout>
 
 </FrameLayout>

@@ -9,7 +9,9 @@ class Donation(var description: String, var creation_time: Long, var donation_id
     var location: LatLng = LatLng(0.0,0.0)
     var collectors: Collectors? = null
     var pick_up_time: Long = 0
-
+    var mass = ""
+    var quantity = ""
+    var batch_id = ""
     var images: ArrayList<donation_image> = ArrayList()
     var activies: ArrayList<activity> = ArrayList()
 

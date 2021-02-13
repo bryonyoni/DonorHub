@@ -67,6 +67,10 @@ class NewDonation : Fragment() {
         val set_location_layout: RelativeLayout = va.findViewById(R.id.set_location_layout)
         val location_text: TextView = va.findViewById(R.id.location_text)
 
+        val mass_editText: EditText = va.findViewById(R.id.mass_editText)
+        val quantity_editText: EditText = va.findViewById(R.id.quantity_editText)
+
+
         onImagePicked = {
             val baos = ByteArrayOutputStream()
             it.compress(Bitmap.CompressFormat.JPEG, 100, baos)
@@ -86,17 +90,23 @@ class NewDonation : Fragment() {
 
         finish_layout.setOnClickListener {
             val t = descriptionEditText.text.toString().trim()
+            val mass = mass_editText.text.toString().trim()
+            val quantity = quantity_editText.text.toString().trim()
             if(t.equals("")){
                 descriptionEditText.error = "Type something"
             }else if(picked_images.isEmpty()){
                 Toast.makeText(context, "add some images first!",Toast.LENGTH_SHORT).show()
             }else if(location.latitude==0.0 && location.longitude==0.0){
                 Toast.makeText(context, "add a location first",Toast.LENGTH_SHORT).show()
+            }else if(mass.equals("")){
+                mass_editText.setError("Type something")
+            }else if(quantity.equals("")){
+                quantity_editText.setError("Type something")
             }
 
             else{
                 Toast.makeText(context, "upload donation", Toast.LENGTH_SHORT).show()
-                listener.whenNewDonationFinished(t,picked_images,organisation,location)
+                listener.whenNewDonationFinished(t,picked_images,organisation,location,quantity, mass)
             }
         }
 
@@ -155,7 +165,7 @@ class NewDonation : Fragment() {
 
     interface NewDonationInterface{
         fun whenNewDonationPickImage()
-        fun whenNewDonationFinished(text: String, images: ArrayList<ByteArray>, organisation: Organisation, location: LatLng)
+        fun whenNewDonationFinished(text: String, images: ArrayList<ByteArray>, organisation: Organisation, location: LatLng, quantity: String, mass: String)
         fun whenNewDonationPickLocation()
     }
 }

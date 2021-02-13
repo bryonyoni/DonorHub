@@ -90,21 +90,30 @@ class ViewOrganisation : Fragment() {
         Constants().load_normal_job_image(storageReference, org_image, context!!)
 
         twitter.setOnClickListener {
-            val url = "http://www.twitter.com"
+            var url = "http://www.twitter.com"
+            if(!organisation.twitter.equals("")){
+                url = organisation.twitter
+            }
             val i = Intent(Intent.ACTION_VIEW)
             i.data = Uri.parse(url)
             startActivity(i)
         }
 
         facebook.setOnClickListener {
-            val url = "http://www.facebook.com"
+            var url = "http://www.facebook.com"
+            if(!organisation.facebook.equals("")){
+                url = organisation.facebook
+            }
             val i = Intent(Intent.ACTION_VIEW)
             i.data = Uri.parse(url)
             startActivity(i)
         }
 
         instagram.setOnClickListener {
-            val url = "http://www.instagram.com"
+            var url = "http://www.instagram.com"
+            if(!organisation.instagram.equals("")){
+                url = organisation.instagram
+            }
             val i = Intent(Intent.ACTION_VIEW)
             i.data = Uri.parse(url)
             startActivity(i)

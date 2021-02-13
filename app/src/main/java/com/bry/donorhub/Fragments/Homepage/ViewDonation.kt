@@ -86,9 +86,10 @@ class ViewDonation : Fragment() {
         val user_image: ImageView = va.findViewById(R.id.user_image)
         val collector_relative: RelativeLayout = va.findViewById(R.id.collector_relative)
         val collector_phone: TextView = va.findViewById(R.id.collector_phone)
+        val quantity_mass_time: TextView = va.findViewById(R.id.quantity_mass_time)
 
         val v3: RelativeLayout = va.findViewById(R.id.v3)
-        v3.setOnTouchListener { v, event -> true }
+//        v3.setOnTouchListener { v, event -> true }
 
 
         donation_desc.text = donation.description
@@ -156,6 +157,11 @@ class ViewDonation : Fragment() {
 
         edit_layout.setOnClickListener {
             listener.editDonation(donation, organisation)
+        }
+
+        if(donation.quantity!=null) {
+            quantity_mass_time.visibility = View.VISIBLE
+            quantity_mass_time.text = "${donation.quantity}(items) - ${donation.mass} each"
         }
 
         return va

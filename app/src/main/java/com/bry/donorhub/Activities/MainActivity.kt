@@ -176,6 +176,10 @@ class MainActivity : AppCompatActivity(),
                             don.pick_up_time = doc["pick_up_time"] as Long
                         }
 
+                        if(doc.contains("batch")){
+                            don.batch_id = doc["batch"] as String
+                        }
+
                         donations.add(don)
                     }
                 }
@@ -514,7 +518,7 @@ class MainActivity : AppCompatActivity(),
 
 
     override fun whenNewDonationFinished(text: String, images: ArrayList<ByteArray>,
-                                         organisation: Organisation, location: LatLng) {
+                                         organisation: Organisation, location: LatLng, quantity: String, mass: String) {
         showLoadingScreen()
         val time = Calendar.getInstance().timeInMillis
         val uid = FirebaseAuth.getInstance().currentUser!!.uid
@@ -526,6 +530,8 @@ class MainActivity : AppCompatActivity(),
         don.uploader_id = uid
         don.organisation_id = organisation.org_id
         don.location = location
+        don.quantity = quantity
+        don.mass = mass
 
         for(image in images){
             val id = db.collection("gucci").document().id
