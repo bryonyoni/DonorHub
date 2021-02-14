@@ -26,14 +26,10 @@ import com.bry.donorhub.Fragments.Authentication.SignUpEmail
 import com.bry.donorhub.Fragments.Authentication.SignUpPhone
 import com.bry.donorhub.Fragments.Homepage.*
 import com.bry.donorhub.GpsUtils
-import com.bry.donorhub.Model.Collectors
-import com.bry.donorhub.Model.Donation
+import com.bry.donorhub.Model.*
 import com.bry.donorhub.Model.Number
-import com.bry.donorhub.Model.Organisation
 import com.bry.donorhub.R
 import com.bry.donorhub.databinding.ActivityMainBinding
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
@@ -46,8 +42,15 @@ import com.google.firebase.storage.ktx.storage
 import com.google.gson.Gson
 import com.theartofdev.edmodo.cropper.CropImage
 import java.io.ByteArrayOutputStream
+import java.nio.charset.StandardCharsets
+import java.security.*
+import java.security.spec.PKCS8EncodedKeySpec
+import java.security.spec.X509EncodedKeySpec
 import java.util.*
+import javax.crypto.Cipher
 import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
+
 
 class MainActivity : AppCompatActivity(),
         SignUp.SignUpNameInterface,
@@ -88,6 +91,13 @@ class MainActivity : AppCompatActivity(),
     var doubleBackToExitPressedOnce: Boolean = false
     var is_loading: Boolean = false
 
+    private var blockchain: ArrayList<Block> = ArrayList()
+    private var donationHashMap: HashMap<String, String> = HashMap()
+    private var keys: HashMap<String, String> = HashMap()
+
+    var privateKey: PrivateKey? = null
+    var publicKey: PublicKey? = null
+    var signature: ByteArray? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,14 +107,260 @@ class MainActivity : AppCompatActivity(),
         actionBar.hide()
 
         if(constants.SharedPreferenceManager(applicationContext).getPersonalInfo() == null){
-            supportFragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+            supportFragmentManager.beginTransaction().setCustomAnimations(
+                    R.anim.slide_in_right,
+                    R.anim.slide_out_left
+            )
                     .replace(binding.money.id, SignUp.newInstance("", ""), _sign_up).commit()
         }else{
             loadDonationsAndOrganisations()
             openPickOrganisation()
         }
 
+        val pubKey = constants.SharedPreferenceManager(applicationContext).fetchPubKey()
+        if(pubKey.equals("")){
+            //we need to gen a pub key
+            Log.e(TAG, "generating a pub-priv key")
+            generateMyKeyPair()
+        }
+
+        val keystring = constants.SharedPreferenceManager(applicationContext).getDataKeysForDonations()
+        if(!keystring.equals("")){
+            keys = Gson().fromJson(keystring, symm_keys::class.java).keys_hash
+        }
+
+
+        //
+        val block1 = Block("test data for block 1", "0")
+        val block2 = Block("test data for block 2", block1.calculateHash())
+        val block3 = Block("test data for block 3", block2.calculateHash())
+
+        Log.e(TAG, "block1: ${block1.data} Hash: ${block1.calculateHash()}")
+        Log.e(TAG, "block2: ${block2.data} Hash: ${block2.calculateHash()}")
+        Log.e(TAG, "block3: ${block3.data} Hash: ${block3.calculateHash()}")
+
+        val block2clone = Block("clone data for block 2", block1.calculateHash())
+        block2clone.timestamp = block2.timestamp
+        Log.e(TAG, "block2clone: ${block2clone.data} Hash: ${block2clone.calculateHash()}")
+
+
+        //
+        Security.addProvider(org.spongycastle.jce.provider.BouncyCastleProvider())
+        generateKeyPair()
+
+
+        Log.e(TAG, "public key: ${Base64.getEncoder().encodeToString(publicKey?.encoded)}")
+
+        val enc = Base64.getEncoder().encodeToString(publicKey?.encoded)
+        val kf = KeyFactory.getInstance("RSA", "SC")
+        val x509ks = X509EncodedKeySpec(Base64.getDecoder().decode(enc))
+        val decoded_pub: PublicKey = kf.generatePublic(x509ks)
+
+        Log.e(TAG, "decoded public key: ${Base64.getEncoder().encodeToString(decoded_pub.encoded)}")
+
+        val enc2 = Base64.getEncoder().encodeToString(privateKey?.encoded)
+        var p8ks = PKCS8EncodedKeySpec(Base64.getDecoder().decode(enc2))
+        val kf2 = KeyFactory.getInstance("RSA", "SC")
+        val privKeyA = kf2.generatePrivate(p8ks)
+
+        generateSignature(privateKey, "my secure data!")
+
+        val isSignatureValid = verifySignature("my secure data!", publicKey!!, signature!!)
+
+        Log.e(TAG, "is signature valid??: $isSignatureValid")
+
+
+        val msg = "my secure data"
+        val charset = StandardCharsets.UTF_8
+        val encrypt: Cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding")
+        encrypt.init(Cipher.ENCRYPT_MODE, publicKey)
+        // encrypt with known character encoding, you should probably use hybrid cryptography instead
+        val encryptedMessage: ByteArray = encrypt.doFinal(msg.toByteArray(charset))
+
+        Log.e(TAG, "encrypted message: ${encryptedMessage.toString(charset)}")
+
+        val decrypt = Cipher.getInstance("RSA/ECB/PKCS1Padding")
+        decrypt.init(Cipher.DECRYPT_MODE, privateKey)
+        val decryptedMessage = String(decrypt.doFinal(encryptedMessage), StandardCharsets.UTF_8)
+
+        Log.e(TAG, "decrypted message: ${decryptedMessage}")
+
+
+//        Log.e(TAG, "my symm key: ${symmKey}")
+
+//        tryTheThing()
     }
+
+    fun tryTheThing(){
+        Log.e(TAG, "Running the thing........................")
+        val my_symm_key = "key123"
+        val enc_obj = runSymmetricEncryption("the quick brown", my_symm_key)
+
+        val encPubKey = Base64.getEncoder().encodeToString(publicKey?.encoded)
+        val kf = KeyFactory.getInstance("RSA", "SC")
+        val x509ks = X509EncodedKeySpec(Base64.getDecoder().decode(encPubKey))
+        val decoded_pub: PublicKey = kf.generatePublic(x509ks)
+
+        val encPriKey = Base64.getEncoder().encodeToString(privateKey?.encoded)
+        var p8ks = PKCS8EncodedKeySpec(Base64.getDecoder().decode(encPriKey))
+        val kf2 = KeyFactory.getInstance("RSA", "SC")
+        val privKeyA = kf2.generatePrivate(p8ks)
+
+        val ref = db.collection("test_stuff").document()
+
+        val charset = StandardCharsets.UTF_8
+        val encrypt: Cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding")
+        encrypt.init(Cipher.ENCRYPT_MODE, decoded_pub)
+        val encryptedMessage: ByteArray = encrypt.doFinal(my_symm_key.toByteArray(charset))
+
+        val enc_data = Base64.getEncoder().encodeToString(encryptedMessage)
+        val signature_word = "gucci123"
+        val signatures = generateSignature(privKeyA, signature_word)
+        val sig_string = Base64.getEncoder().encodeToString(signatures)
+
+        val data = hashMapOf(
+                "data" to enc_obj,
+                "enc_data_key" to enc_data,
+                "signature" to sig_string,
+                "uploader_pub_key" to encPubKey,
+                "doc_id" to ref.id
+        )
+
+//        Log.e(TAG, "Decrypting the thing........................")
+//
+//        val dec_sig = Base64.getDecoder().decode(sig_string)
+//
+//        val isSignatureValid = verifySignature(signature_word, decoded_pub, dec_sig)
+//
+//        Log.e(TAG, "is their signature valid??: ${isSignatureValid}")
+//
+//        val decrypt = Cipher.getInstance("RSA/ECB/PKCS1Padding")
+//        decrypt.init(Cipher.DECRYPT_MODE, privKeyA)
+//
+//        //try using encrypted message as string
+//        val decryptedEncMsg = Base64.getDecoder().decode(enc_data)
+//
+//        val decryptedMessage = String(decrypt.doFinal(decryptedEncMsg), StandardCharsets.UTF_8)
+//        Log.e(TAG, "decrypted key: ${decryptedMessage} message ${runSymmetricDecryption(enc_obj,decryptedMessage)}")
+
+
+
+
+        ref.set(data).addOnSuccessListener {
+            db.collection("test_stuff").document(ref.id).get().addOnSuccessListener {
+                Log.e(TAG, "Decrypting the thing........................")
+                val kfdec = KeyFactory.getInstance("RSA", "SC")
+                val x509ksdec = X509EncodedKeySpec(Base64.getDecoder().decode(it["uploader_pub_key"] as String))
+                val uploaderPub: PublicKey = kfdec.generatePublic(x509ksdec)
+                val dec_sig = Base64.getDecoder().decode(it["signature"] as String)
+
+                val isSignatureValiddec = verifySignature(signature_word, uploaderPub, dec_sig)
+
+                Log.e(TAG, "is their signature valid??: ${isSignatureValiddec}")
+                val decryptdec = Cipher.getInstance("RSA/ECB/PKCS1Padding")
+                decryptdec.init(Cipher.DECRYPT_MODE, privKeyA)
+
+                //try using encrypted message as string
+                val decryptedEncMsgdec = Base64.getDecoder().decode(it["enc_data_key"] as String)
+                val decryptedMessagedec = String(decryptdec.doFinal(decryptedEncMsgdec), StandardCharsets.UTF_8)
+                val mySecureData = runSymmetricDecryption((it["data"] as String),decryptedMessagedec)
+                Log.e(TAG, "decrypted key: ${decryptedMessagedec} message" +
+                        " ${mySecureData}")
+            }
+        }
+    }
+
+
+
+    fun decryptDataIfPossible(data: String, privateKey: String, signature: String, author_pubKey: String): String{
+        val kf = KeyFactory.getInstance("RSA", "SC")
+        var p8ks = PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKey))
+        val myPrivKey = kf.generatePrivate(p8ks)
+
+        var p8ks_auth = X509EncodedKeySpec(Base64.getDecoder().decode(author_pubKey))
+        val authPubKey = kf.generatePublic(p8ks_auth)
+
+        if(verifySignature(data, authPubKey, Base64.getDecoder().decode(signature))){
+            //the signature matches, so the data was written by the expected author
+            val decrypt = Cipher.getInstance("RSA/ECB/PKCS1Padding")
+            decrypt.init(Cipher.DECRYPT_MODE, myPrivKey)
+            //
+//            val decryptedData = String(decrypt.doFinal(Base64.getDecoder().decode(data)), StandardCharsets.UTF_8)
+            val decryptedData = Base64.getEncoder().encodeToString(decrypt.doFinal(Base64.getDecoder().decode(data)))
+            Log.e(TAG, "decrypted data: ${decryptedData}")
+
+            return decryptedData
+        }else{
+            Log.e(TAG, "signature mismatch, data not from author")
+        }
+
+        return ""
+    }
+
+    fun generateKeyPair() {
+        try {
+            val keyGen: KeyPairGenerator = KeyPairGenerator.getInstance("RSA")
+//            val random: SecureRandom = SecureRandom.getInstance("SHA1PRNG")
+//            val ecSpec = ECGenParameterSpec("secp224k1")
+
+            // Initialize the key generator and generate a KeyPair
+            keyGen.initialize(1024) //256 bytes provides an acceptable security level
+            val keyPair: KeyPair = keyGen.generateKeyPair()
+
+            // Set the public and private keys from the keyPair
+            privateKey = keyPair.getPrivate()
+            publicKey = keyPair.getPublic()
+
+        } catch (e: java.lang.Exception) {
+            throw RuntimeException(e)
+        }
+    }
+
+    fun applyECDSASig(privateKey: PrivateKey?, input: String): ByteArray? {
+        val dsa: Signature
+        var output: ByteArray? = ByteArray(0)
+        try {
+            dsa = Signature.getInstance("RSA", "SC")
+            dsa.initSign(privateKey)
+            val strByte = input.toByteArray()
+//            val strByte = Base64.getDecoder().decode(input)
+            dsa.update(strByte)
+            val realSig = dsa.sign()
+            output = realSig
+        } catch (e: java.lang.Exception) {
+            throw java.lang.RuntimeException(e)
+        }
+        return output
+    }
+
+    fun verifyECDSASig(publicKey: PublicKey?, data: String, signature: ByteArray?): Boolean {
+        return try {
+            val ecdsaVerify = Signature.getInstance("RSA", "SC")
+            ecdsaVerify.initVerify(publicKey)
+            ecdsaVerify.update(data.toByteArray())
+//            ecdsaVerify.update(Base64.getDecoder().decode(data))
+            ecdsaVerify.verify(signature)
+        } catch (e: java.lang.Exception) {
+            throw java.lang.RuntimeException(e)
+        }
+    }
+
+
+    fun generateSignature(privateKey: PrivateKey?, data: String): ByteArray? {
+//        val data: String = StringUtil.getStringFromKey(sender) +
+//                StringUtil.getStringFromKey(reciepient).toString() +
+//                java.lang.Float.toString(value)
+        signature = applyECDSASig(privateKey, data)
+        return  signature
+    }
+
+    fun verifySignature(data: String, publicKey: PublicKey, signature: ByteArray): Boolean {
+//        val data: String = StringUtil.getStringFromKey(sender) +
+//                StringUtil.getStringFromKey(reciepient).toString() + java.lang.Float.toString(value)
+        return verifyECDSASig(publicKey, data, signature)
+    }
+
+
 
     override fun onBackPressed() {
         if (supportFragmentManager.fragments.size > 1) {
@@ -149,13 +405,20 @@ class MainActivity : AppCompatActivity(),
         donations.clear()
         activities.clear()
         users.clear()
+        val uid = FirebaseAuth.getInstance().currentUser!!.uid
 
         db.collection("organisations").get().addOnSuccessListener {
             if(!it.isEmpty){
                 for(doc in it.documents){
                     if(doc.contains("org_obj")){
-                        val org = Gson().fromJson(doc["org_obj"] as String, Organisation::class.java)
-                        organisations.add(org)
+                        val org = Gson().fromJson(
+                                doc["org_obj"] as String,
+                                Organisation::class.java
+                        )
+                        if(doc.contains("pub_key")) {
+                            org.pub_key = doc["pub_key"] as String
+                            organisations.add(org)
+                        }
                     }
                 }
             }
@@ -164,23 +427,34 @@ class MainActivity : AppCompatActivity(),
         db.collection("donations").get().addOnSuccessListener {
             if(!it.isEmpty){
                 for(doc in it.documents){
-                    if(doc.contains("don_obj")){
-                        val don = Gson().fromJson(doc["don_obj"] as String, Donation::class.java)
-                        if(doc.contains("taken_down")){
-                            don.is_taken_down = doc["taken_down"] as Boolean
-                        }
-                        if(doc.contains("collectors")){
-                            don.collectors = Gson().fromJson(doc["collectors"] as String, Collectors::class.java)
-                        }
-                        if(doc.contains("pick_up_time")){
-                            don.pick_up_time = doc["pick_up_time"] as Long
-                        }
+                    if(doc.contains("don_obj")
+                        && doc.contains("signature")
+                        && ((doc["uploader"] as String) == uid)
+                    ){
+                        if(keys.containsKey(doc.id)) {
+                            val key = keys.get(doc.id)
+                            val mySecureData = runSymmetricDecryption((doc["don_obj"] as String), key!!)
 
-                        if(doc.contains("batch")){
-                            don.batch_id = doc["batch"] as String
-                        }
+                            val don = Gson().fromJson(mySecureData, Donation::class.java)
+                            if (doc.contains("taken_down")) {
+                                don.is_taken_down = doc["taken_down"] as Boolean
+                            }
+                            if (doc.contains("collectors")) {
+                                don.collectors = Gson().fromJson(
+                                        doc["collectors"] as String,
+                                        Collectors::class.java
+                                )
+                            }
+                            if (doc.contains("pick_up_time")) {
+                                don.pick_up_time = doc["pick_up_time"] as Long
+                            }
 
-                        donations.add(don)
+                            if (doc.contains("batch")) {
+                                don.batch_id = doc["batch"] as String
+                            }
+
+                            donations.add(don)
+                        }
                     }
                 }
             }
@@ -197,7 +471,14 @@ class MainActivity : AppCompatActivity(),
                     var timestamp = doc["timestamp"] as Long
                     var donation_id = doc["donation"] as String
 
-                    activities.add(Donation.activity(explanation, timestamp, donation_id, activity_id))
+                    activities.add(
+                            Donation.activity(
+                                    explanation,
+                                    timestamp,
+                                    donation_id,
+                                    activity_id
+                            )
+                    )
                 }
             }
         }
@@ -221,7 +502,9 @@ class MainActivity : AppCompatActivity(),
     fun whenDoneLoadingData(){
 
         if(supportFragmentManager.findFragmentByTag(_pick_org)!=null){
-            (supportFragmentManager.findFragmentByTag(_pick_org) as PickOrganisation).when_data_updated(organisations)
+            (supportFragmentManager.findFragmentByTag(_pick_org) as PickOrganisation).when_data_updated(
+                    organisations
+            )
         }
 
         if(supportFragmentManager.findFragmentByTag(_view_organisation)!=null){
@@ -235,7 +518,10 @@ class MainActivity : AppCompatActivity(),
 
     fun openPickOrganisation(){
         val orgs = Gson().toJson(Organisation.organisation_list(organisations))
-        supportFragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+        supportFragmentManager.beginTransaction().setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+        )
                 .replace(binding.money.id, PickOrganisation.newInstance("", "", orgs), _pick_org).commit()
     }
 
@@ -244,7 +530,10 @@ class MainActivity : AppCompatActivity(),
 
 
     override fun OnSignUpNameLogInInsteadSelected() {
-        supportFragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+        supportFragmentManager.beginTransaction().setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+        )
                 .replace(binding.money.id, SignIn.newInstance("", ""), _sign_in).commit()
     }
 
@@ -255,7 +544,10 @@ class MainActivity : AppCompatActivity(),
     override fun OnSignUpNameContinueSelected(name: String) {
         this.name = name
 
-        supportFragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+        supportFragmentManager.beginTransaction().setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+        )
                 .replace(binding.money.id, SignUpEmail.newInstance("", ""), _sign_up_email).commit()
     }
 
@@ -263,7 +555,10 @@ class MainActivity : AppCompatActivity(),
         this.email = email
         this.passcode = password
 
-        supportFragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+        supportFragmentManager.beginTransaction().setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+        )
                 .replace(binding.money.id, SignUpPhone.newInstance("", ""), _sign_up_phone).commit()
     }
 
@@ -280,23 +575,34 @@ class MainActivity : AppCompatActivity(),
                 imm.hideSoftInputFromWindow(view.windowToken, 0)
             }
 
-            mAuth!!.createUserWithEmailAndPassword(email,passcode)
+            mAuth!!.createUserWithEmailAndPassword(email, passcode)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             Log.d("main", "authentication successful")
                             createFirebaseUserProfile(task.result!!.user, email, name, number)
                         } else {
-                            Snackbar.make(binding.root, resources.getString(R.string.that_didnt_work), Snackbar.LENGTH_LONG).show()
+                            Snackbar.make(
+                                    binding.root,
+                                    resources.getString(R.string.that_didnt_work),
+                                    Snackbar.LENGTH_LONG
+                            ).show()
                             hideLoadingScreen()
                         }
                     }
         }else{
-            Snackbar.make(binding.root, getString(R.string.please_check_on_your_internet_connection),
-                    Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(
+                    binding.root, getString(R.string.please_check_on_your_internet_connection),
+                    Snackbar.LENGTH_SHORT
+            ).show()
         }
     }
 
-    private fun createFirebaseUserProfile(user: FirebaseUser?, email: String, name: String, numbr: Number) {
+    private fun createFirebaseUserProfile(
+            user: FirebaseUser?,
+            email: String,
+            name: String,
+            numbr: Number
+    ) {
         val addProfileName = UserProfileChangeRequest.Builder().setDisplayName(name).build()
         val time = Calendar.getInstance().timeInMillis
         if (user != null) {
@@ -344,7 +650,10 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun OnSignInSignUpInsteadSelected() {
-        supportFragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+        supportFragmentManager.beginTransaction().setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+        )
                 .replace(binding.money.id, SignUp.newInstance("", ""), _sign_up).commit()
     }
 
@@ -362,7 +671,10 @@ class MainActivity : AppCompatActivity(),
                         if (it.exists()) {
                             val name = it.get("name") as String
                             val sign_up_time = it.get("sign_up_time") as Long
-                            val numbr = Gson().fromJson(it.get("phone_number") as String, Number::class.java)
+                            val numbr = Gson().fromJson(
+                                    it.get("phone_number") as String,
+                                    Number::class.java
+                            )
 
                             constants.SharedPreferenceManager(applicationContext)
                                     .setPersonalInfo(numbr, email, name, sign_up_time, user.uid)
@@ -385,7 +697,11 @@ class MainActivity : AppCompatActivity(),
             mAuth!!.signInWithEmailAndPassword(email, password).addOnCompleteListener(this) { task ->
                 Log.d("main", "signInWithEmail:onComplete" + task.isSuccessful)
                 if (!task.isSuccessful) {
-                    Snackbar.make(binding.root, "That didn't work. Please check your credentials and retry.", Snackbar.LENGTH_LONG).show()
+                    Snackbar.make(
+                            binding.root,
+                            "That didn't work. Please check your credentials and retry.",
+                            Snackbar.LENGTH_LONG
+                    ).show()
                     if(supportFragmentManager.findFragmentByTag(_sign_in)!=null){
                         (supportFragmentManager.findFragmentByTag(_sign_in) as SignIn).didPasscodeFail()
                     }
@@ -394,7 +710,11 @@ class MainActivity : AppCompatActivity(),
                 }
             }.addOnFailureListener { }
         }else{
-            Snackbar.make(binding.root, getString(R.string.please_check_on_your_internet_connection), Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(
+                    binding.root,
+                    getString(R.string.please_check_on_your_internet_connection),
+                    Snackbar.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -405,8 +725,15 @@ class MainActivity : AppCompatActivity(),
     override fun whenPickOrganisationOrgPicked(organisation: Organisation) {
         val dons = ""
         val orgs = Gson().toJson(organisation)
-        supportFragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
-                .add(binding.money.id, ViewOrganisation.newInstance("", "", orgs, dons), _view_organisation).commit()
+        supportFragmentManager.beginTransaction().setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+        )
+                .add(
+                        binding.money.id,
+                        ViewOrganisation.newInstance("", "", orgs, dons),
+                        _view_organisation
+                ).commit()
     }
 
     override fun whenReloadEverything() {
@@ -424,7 +751,10 @@ class MainActivity : AppCompatActivity(),
         }
 
         val dons = Gson().toJson(Donation.donation_list(my_donations))
-        supportFragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+        supportFragmentManager.beginTransaction().setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+        )
                 .add(binding.money.id, MyDonations.newInstance("", "", dons), _my_donations).commit()
     }
 
@@ -434,7 +764,10 @@ class MainActivity : AppCompatActivity(),
 
     override fun whenViewOrganisationCreateNewDonation(organisation: Organisation) {
         val org = Gson().toJson(organisation)
-        supportFragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+        supportFragmentManager.beginTransaction().setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+        )
                 .add(binding.money.id, NewDonation.newInstance("", "", org), _new_donation).commit()
     }
 
@@ -463,10 +796,12 @@ class MainActivity : AppCompatActivity(),
         val ref = db.collection("donations")
             .document(donation.donation_id)
 
-        ref.update(mapOf(
-            "don_obj" to Gson().toJson(donation),
-            "taken_down" to donation.is_taken_down,
-        )).addOnSuccessListener {
+        ref.update(
+                mapOf(
+                        "don_obj" to Gson().toJson(donation),
+                        "taken_down" to donation.is_taken_down,
+                )
+        ).addOnSuccessListener {
             hideLoadingScreen()
             Toast.makeText(applicationContext, "done!", Toast.LENGTH_SHORT).show()
             onBackPressed()
@@ -484,7 +819,9 @@ class MainActivity : AppCompatActivity(),
                 val bitmap: Bitmap = MediaStore.Images.Media.getBitmap(contentResolver, resultUri)
 
                 if(supportFragmentManager.findFragmentByTag(_new_donation)!=null){
-                    (supportFragmentManager.findFragmentByTag(_new_donation) as NewDonation).onImagePicked(bitmap)
+                    (supportFragmentManager.findFragmentByTag(_new_donation) as NewDonation).onImagePicked(
+                            bitmap
+                    )
                 }
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
@@ -499,12 +836,19 @@ class MainActivity : AppCompatActivity(),
             if (data.data != null) {
                 val mFilepath = data.data!!
                 try {
-                    val bitmap: Bitmap = MediaStore.Images.Media.getBitmap(contentResolver, mFilepath)
+                    val bitmap: Bitmap = MediaStore.Images.Media.getBitmap(
+                            contentResolver,
+                            mFilepath
+                    )
                     if(supportFragmentManager.findFragmentByTag(_new_donation)!=null){
-                        (supportFragmentManager.findFragmentByTag(_new_donation) as NewDonation).onImagePicked(bitmap)
+                        (supportFragmentManager.findFragmentByTag(_new_donation) as NewDonation).onImagePicked(
+                                bitmap
+                        )
                     }
                     if(supportFragmentManager.findFragmentByTag(_edit_donation)!=null){
-                        (supportFragmentManager.findFragmentByTag(_edit_donation) as EditDonation).onImagePicked(bitmap)
+                        (supportFragmentManager.findFragmentByTag(_edit_donation) as EditDonation).onImagePicked(
+                                bitmap
+                        )
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -517,8 +861,10 @@ class MainActivity : AppCompatActivity(),
 
 
 
-    override fun whenNewDonationFinished(text: String, images: ArrayList<ByteArray>,
-                                         organisation: Organisation, location: LatLng, quantity: String, mass: String) {
+    override fun whenNewDonationFinished(
+            text: String, images: ArrayList<ByteArray>,
+            organisation: Organisation, location: LatLng, quantity: String, mass: String
+    ) {
         showLoadingScreen()
         val time = Calendar.getInstance().timeInMillis
         val uid = FirebaseAuth.getInstance().currentUser!!.uid
@@ -541,25 +887,74 @@ class MainActivity : AppCompatActivity(),
         }
 
 
+        val source = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        val my_symm_key =  java.util.Random().ints(24, 0, source.length)
+                .toArray()
+                .map(source::get)
+                .joinToString("")
+
+        val dat = Gson().toJson(don)
+        val enc_obj = runSymmetricEncryption(dat, my_symm_key)
+
+        val encPubKey = organisation.pub_key
+        val kf = KeyFactory.getInstance("RSA", "SC")
+        val x509ks = X509EncodedKeySpec(Base64.getDecoder().decode(encPubKey))
+        val decoded_pub: PublicKey = kf.generatePublic(x509ks)
+
+        val myPubKeyString = constants.SharedPreferenceManager(applicationContext).fetchPubKey()
+        val kf3 = KeyFactory.getInstance("RSA", "SC")
+        val x509ks3 = X509EncodedKeySpec(Base64.getDecoder().decode(myPubKeyString))
+        val myPubKey: PublicKey = kf3.generatePublic(x509ks3)
+
+        val encPriKey = constants.SharedPreferenceManager(applicationContext).fetchPrivKey()
+        var p8ks = PKCS8EncodedKeySpec(Base64.getDecoder().decode(encPriKey))
+        val kf2 = KeyFactory.getInstance("RSA", "SC")
+        val privKeyA = kf2.generatePrivate(p8ks)
+
+
+        val charset = StandardCharsets.UTF_8
+        val encrypt: Cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding")
+        encrypt.init(Cipher.ENCRYPT_MODE, decoded_pub)
+        val encryptedMessage: ByteArray = encrypt.doFinal(my_symm_key.toByteArray(charset))
+
+        val enc_data = Base64.getEncoder().encodeToString(encryptedMessage)
+        val signature_word = uid
+        val signatures = generateSignature(privKeyA, signature_word)
+        val sig_string = Base64.getEncoder().encodeToString(signatures)
+
         val data = hashMapOf(
-                "don_obj" to Gson().toJson(don),
+                "don_obj" to enc_obj,
+                "enc_data_key" to enc_data,
                 "taken_down" to false,
                 "time_of_creation" to time,
                 "org_id" to ref.id,
                 "uploader" to uid,
                 "location" to Gson().toJson(location),
-                "batch" to ""
+                "batch" to "",
+                "signature" to sig_string,
+                "uploader_pub_key" to myPubKeyString
         )
 
         donations.add(don)
 
+        Log.e(TAG, "compare .........--------------")
+        Log.e(TAG,"signature_word(uploader) --- ${uid}")
+        Log.e(TAG,"uploaderPub key --- ${myPubKeyString}")
+        Log.e(TAG,"signature  --- ${sig_string}")
+
         ref.set(data).addOnSuccessListener {
+            keys.put(ref.id, my_symm_key)
+            constants.SharedPreferenceManager(applicationContext)
+                    .setDataKeysForDonations(Gson().toJson(symm_keys(keys)))
+
             hideLoadingScreen()
-            Toast.makeText(applicationContext,"done!", Toast.LENGTH_SHORT).show()
-            open_view_donation(don,organisation)
+            Toast.makeText(applicationContext, "done!", Toast.LENGTH_SHORT).show()
+            open_view_donation(don, organisation)
         }
 
     }
+
+    class symm_keys(var keys_hash: HashMap<String, String>)
 
     override fun whenNewDonationPickLocation() {
         open_map_fragment()
@@ -577,9 +972,9 @@ class MainActivity : AppCompatActivity(),
         val data = baos.toByteArray()
 
         avatarRef.putBytes(data).addOnFailureListener{
-            Log.e(TAG,it.message.toString())
+            Log.e(TAG, it.message.toString())
         }.addOnSuccessListener {
-            Log.e(TAG,"Written image in the cloud!")
+            Log.e(TAG, "Written image in the cloud!")
         }
     }
 
@@ -610,8 +1005,15 @@ class MainActivity : AppCompatActivity(),
             }
         }
 
-        supportFragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
-                .add(binding.money.id, ViewDonation.newInstance("", "", org, don, act_string,user), _view_donation).commit()
+        supportFragmentManager.beginTransaction().setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+        )
+                .add(
+                        binding.money.id,
+                        ViewDonation.newInstance("", "", org, don, act_string, user),
+                        _view_donation
+                ).commit()
     }
 
     override fun whenMyDonationViewDonation(donation: Donation) {
@@ -629,8 +1031,11 @@ class MainActivity : AppCompatActivity(),
 
     val requestCodeForViewingMyLoc = 13
     fun open_map_fragment(){
-        supportFragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
-            .add(binding.money.id, PickMapLocation(),_map_fragment).commit()
+        supportFragmentManager.beginTransaction().setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+        )
+            .add(binding.money.id, PickMapLocation(), _map_fragment).commit()
 
     }
 
@@ -646,9 +1051,12 @@ class MainActivity : AppCompatActivity(),
             ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) !=
             PackageManager.PERMISSION_GRANTED)
         {
-            ActivityCompat.requestPermissions(this, arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION), requestCodeForViewingMyLoc)
+            ActivityCompat.requestPermissions(
+                    this, arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            ), requestCodeForViewingMyLoc
+            )
         } else {
             mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
             locationRequest = LocationRequest.create()
@@ -666,20 +1074,20 @@ class MainActivity : AppCompatActivity(),
                         if (location != null) {
                             val wayLatitude = location.latitude
                             val wayLongitude = location.longitude
-                            Log.e(TAG,"wayLatitude: ${wayLatitude} longitude: ${wayLongitude}")
+                            Log.e(TAG, "wayLatitude: ${wayLatitude} longitude: ${wayLongitude}")
                             if(is_map_fragment_open) {
                                 if (supportFragmentManager.findFragmentByTag(_map_fragment) != null) {
                                     (supportFragmentManager.findFragmentByTag(_map_fragment) as PickMapLocation)
                                         .whenMyLocationGotten(
-                                        LatLng(wayLatitude, wayLongitude)
-                                    )
+                                                LatLng(wayLatitude, wayLongitude)
+                                        )
                                 }
                             }
                         }
                     }
                 }
             }
-            mFusedLocationClient.requestLocationUpdates(locationRequest,locationCallback,null)
+            mFusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
 
             is_location_client_running = true
 
@@ -710,18 +1118,24 @@ class MainActivity : AppCompatActivity(),
     override fun whenMapLocationPicked(latLng: LatLng) {
         Toast.makeText(applicationContext, "Location set!", Toast.LENGTH_SHORT).show()
         if(supportFragmentManager.findFragmentByTag(_new_donation)!=null){
-            (supportFragmentManager.findFragmentByTag(_new_donation) as NewDonation).onLocationPicked(latLng)
+            (supportFragmentManager.findFragmentByTag(_new_donation) as NewDonation).onLocationPicked(
+                    latLng
+            )
         }
         onBackPressed()
     }
 
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+            requestCode: Int,
+            permissions: Array<String?>,
+            grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             requestCodeForViewingMyLoc -> {
                 if (grantResults.size > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED
                 ) {
                     load_my_location_for_map()
                 } else {
@@ -734,14 +1148,125 @@ class MainActivity : AppCompatActivity(),
     override fun viewDonationLocation(donation: Donation) {
         var don = Gson().toJson(donation)
         Log.e(TAG, "viewing donation")
-        supportFragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
-                .add(binding.money.id, ViewDonationLocation.newInstance(don), _view_donation_location).commit()
+        supportFragmentManager.beginTransaction().setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+        )
+                .add(
+                        binding.money.id,
+                        ViewDonationLocation.newInstance(don),
+                        _view_donation_location
+                ).commit()
     }
 
     override fun editDonation(donation: Donation, organ: Organisation) {
-        supportFragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
-            .add(binding.money.id, EditDonation.newInstance("", "",
-                Gson().toJson(donation), Gson().toJson(organ)), _edit_donation).commit()
+        supportFragmentManager.beginTransaction().setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+        )
+            .add(
+                    binding.money.id, EditDonation.newInstance(
+                    "", "",
+                    Gson().toJson(donation), Gson().toJson(organ)
+            ), _edit_donation
+            ).commit()
+    }
+
+
+    fun generateMyKeyPair() {
+        try {
+            val keyGen: KeyPairGenerator = KeyPairGenerator.getInstance("RSA")
+//            val random: SecureRandom = SecureRandom.getInstance("SHA1PRNG")
+//            val ecSpec = ECGenParameterSpec("secp224k1")
+
+            // Initialize the key generator and generate a KeyPair
+            keyGen.initialize(4096) //256 bytes provides an acceptable security level
+            val keyPair: KeyPair = keyGen.generateKeyPair()
+
+            // Set the public and private keys from the keyPair
+            var privateKey = keyPair.getPrivate()
+            var publicKey = keyPair.getPublic()
+
+            val enc_pub = Base64.getEncoder().encodeToString(publicKey?.encoded)
+            val enc_priv = Base64.getEncoder().encodeToString(privateKey?.encoded)
+
+            constants.SharedPreferenceManager(applicationContext).stashPrivKey(enc_priv)
+            constants.SharedPreferenceManager(applicationContext).stashPubKey(enc_pub)
+
+        } catch (e: java.lang.Exception) {
+            throw RuntimeException(e)
+        }
+    }
+
+    fun encryptDataWithOrgKey(data: String, org_key: String): String{
+        val charset = StandardCharsets.UTF_8
+        val encrypt: Cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding")
+        val kf = KeyFactory.getInstance("RSA", "SC")
+
+        val x509ks = X509EncodedKeySpec(Base64.getDecoder().decode(org_key))
+        val decoded_pub: PublicKey = kf.generatePublic(x509ks)
+
+        encrypt.init(Cipher.ENCRYPT_MODE, decoded_pub)
+        // encrypt with known character encoding, you should probably use hybrid cryptography instead
+        val data_byte_array: ByteArray = Base64.getDecoder().decode(data)
+        val encryptedMessage: ByteArray = encrypt.doFinal(data_byte_array)
+
+        val encodedmessage: String = Base64.getEncoder().encodeToString(encryptedMessage)
+
+        Log.e(TAG, "encrypted message: ${encodedmessage}")
+
+        return encodedmessage
+    }
+
+    fun generateSignatureForData(data: String): String{
+        val myPrivKey = constants.SharedPreferenceManager(applicationContext).fetchPrivKey()
+        val kf = KeyFactory.getInstance("RSA", "SC")
+        var p8ks = PKCS8EncodedKeySpec(Base64.getDecoder().decode(myPrivKey))
+
+        val privKeyA = kf.generatePrivate(p8ks)
+        val signature_byte_array = applyECDSASig(privKeyA, data)
+
+        return Base64.getEncoder().encodeToString(signature_byte_array)
+    }
+
+
+    fun decryptDataWithMyKey(data: String): String{
+        val kf = KeyFactory.getInstance("RSA", "SC")
+        val myPrivKey = constants.SharedPreferenceManager(applicationContext).fetchPrivKey()
+        var p8ks = PKCS8EncodedKeySpec(Base64.getDecoder().decode(myPrivKey))
+        val privKeyA = kf.generatePrivate(p8ks)
+
+        val decrypt = Cipher.getInstance("RSA/ECB/PKCS1Padding")
+        decrypt.init(Cipher.DECRYPT_MODE, privKeyA)
+        val decrypted_data = String(decrypt.doFinal(data.toByteArray(StandardCharsets.UTF_8)), StandardCharsets.UTF_8)
+
+        return decrypted_data
+    }
+
+
+    fun runSymmetricEncryption(data: String, code: String): String{
+        val key = code
+
+        val plaintext = data
+        val symmetricEncryption = SymmetricEncryption()
+
+        //encode
+        val encrypted = symmetricEncryption.encrypt(
+                plaintext, key
+        )
+
+        return encrypted
+    }
+
+    fun runSymmetricDecryption(data: String, code: String): String{
+        val symmetricEncryption = SymmetricEncryption()
+
+        val decrypted = symmetricEncryption.decrypt(
+                ciphertext = data,
+                secret = code
+        )
+
+        return decrypted
     }
 
 }

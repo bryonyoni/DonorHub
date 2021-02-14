@@ -25,6 +25,10 @@ class Constants{
     val donation_data = "donation_data"
     val coll_users = "coll_users"
     val first_time_launch = "first_time_launch"
+    val priv_key = "priv_key4"
+    val pub_key = "pub_key4"
+    val symm_key = "symm_key2"
+    val symm_key_data = "symm_key_data"
 
 
     fun getCurrency(country_code: String):String{
@@ -163,6 +167,57 @@ class Constants{
         fun clear_local_images(){
             applicationContext.getSharedPreferences(local_image, Context.MODE_PRIVATE).edit().clear().apply()
         }
+
+
+
+        fun stashPrivKey(data: String){
+            val pref: SharedPreferences = applicationContext.getSharedPreferences(priv_key, Context.MODE_PRIVATE)
+            pref.edit().putString(priv_key,data).apply()
+        }
+
+        fun fetchPrivKey(): String{
+            val pref: SharedPreferences = applicationContext.getSharedPreferences(priv_key, Context.MODE_PRIVATE)
+            val va = pref.getString(priv_key, "")
+
+            return va!!
+        }
+
+        fun stashPubKey(data: String){
+            val pref: SharedPreferences = applicationContext.getSharedPreferences(pub_key, Context.MODE_PRIVATE)
+            pref.edit().putString(pub_key,data).apply()
+        }
+
+        fun fetchPubKey(): String{
+            val pref: SharedPreferences = applicationContext.getSharedPreferences(pub_key, Context.MODE_PRIVATE)
+            val va = pref.getString(pub_key, "")
+
+            return va!!
+        }
+
+        fun stashSymmKey(data: String){
+            val pref: SharedPreferences = applicationContext.getSharedPreferences(symm_key, Context.MODE_PRIVATE)
+            pref.edit().putString(symm_key,data).apply()
+        }
+
+        fun fetchSymmKey(): String{
+            val pref: SharedPreferences = applicationContext.getSharedPreferences(symm_key, Context.MODE_PRIVATE)
+            val va = pref.getString(symm_key, "")
+
+            return va!!
+        }
+
+        fun setDataKeysForDonations(data: String){
+            val pref: SharedPreferences = applicationContext.getSharedPreferences(symm_key_data, Context.MODE_PRIVATE)
+            pref.edit().putString(symm_key_data,data).apply()
+        }
+
+        fun getDataKeysForDonations(): String{
+            val pref: SharedPreferences = applicationContext.getSharedPreferences(symm_key_data, Context.MODE_PRIVATE)
+            val va = pref.getString(symm_key_data, "")
+
+            return va!!
+        }
+
     }
 
     inner class user(var phone: Number, val email: String, var name: String,
