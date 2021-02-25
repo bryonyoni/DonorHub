@@ -877,7 +877,7 @@ class MainActivity : AppCompatActivity(),
         don.organisation_id = organisation.org_id
         don.location = location
         don.quantity = quantity
-        don.mass = mass
+        don.mass = "$mass Kg"
 
         for(image in images){
             val id = db.collection("gucci").document().id
@@ -929,7 +929,7 @@ class MainActivity : AppCompatActivity(),
                 "time_of_creation" to time,
                 "org_id" to ref.id,
                 "uploader" to uid,
-                "location" to Gson().toJson(location),
+                "location" to Gson().toJson(LatLng(0.0,0.0)),
                 "batch" to "",
                 "signature" to sig_string,
                 "uploader_pub_key" to myPubKeyString
